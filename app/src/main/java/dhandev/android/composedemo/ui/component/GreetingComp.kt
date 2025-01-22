@@ -8,7 +8,7 @@ import dhandev.android.composedemo.ui.theme.ComposeDemoTheme
 
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
+fun GreetingComp(name: String, modifier: Modifier = Modifier) {
     Text(
         text = "Hello $name!",
         modifier = modifier
@@ -19,6 +19,6 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 @Composable
 fun GreetingPreview() {
     ComposeDemoTheme {
-        Greeting("Android")
+        GreetingComp("Android")
     }
 }
