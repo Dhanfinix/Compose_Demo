@@ -19,7 +19,7 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     navigateTo: (Destinations) -> Unit = {}
 ) {
-    val destinations = listOf(Destinations.SimpleComponent(), Destinations.BasicLayout())
+    val destinations = listOf(Destinations.SimpleComponent(), Destinations.ComposeModifier())
     val context = LocalContext.current
     DemoScaffoldComp(
         modifier = modifier,

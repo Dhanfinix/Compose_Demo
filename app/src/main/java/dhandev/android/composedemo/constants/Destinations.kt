@@ -12,11 +12,11 @@ sealed class Destinations {
 
     @Serializable
     data class SimpleComponent(
-        override val title: String = "Simple Component",
+        override val title: String = "Component & Basic Layout",
     ): Destinations()
 
     @Serializable
-    data class BasicLayout(
-        override val title: String = "Basic Layout",
+    data class ComposeModifier(
+        override val title: String = "Modifier",
     ): Destinations()
 }

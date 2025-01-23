@@ -11,8 +11,11 @@ import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults.exitUntilCollapsedScrollBehavior
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import dhandev.android.composedemo.constants.LocalNavController
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -25,16 +28,23 @@ fun DemoScaffoldComp(
     content: @Composable (PaddingValues)->Unit
 ) {
     val navController = LocalNavController.current
+    val scrollBehavior = exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+
+    // same as coordinator layout in view-based UI, it contain slot of view that can be used
     Scaffold(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             if (isLargeTopAppBar){
                 LargeTopAppBar(
-                    title = { Text(title) }
+                    title = { Text(title) },
+                    scrollBehavior = scrollBehavior
                 )
             } else {
                 MediumTopAppBar(
                     title = { Text(title) },
+                    scrollBehavior = scrollBehavior,
                     navigationIcon = {
                         if (enableBackNavigation) {
                             IconButton(

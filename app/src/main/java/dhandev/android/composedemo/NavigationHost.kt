@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dhandev.android.composedemo.constants.Destinations
 import dhandev.android.composedemo.constants.LocalNavController
+import dhandev.android.composedemo.ui.screen.ComposeModifierScreen
 import dhandev.android.composedemo.ui.screen.HomeScreen
 import dhandev.android.composedemo.ui.screen.SimpleComponentScreen
 
@@ -30,6 +31,9 @@ fun NavigationHost(modifier: Modifier = Modifier) {
             }
             composable<Destinations.SimpleComponent> {
                 SimpleComponentScreen()
+            }
+            composable<Destinations.ComposeModifier> {
+                ComposeModifierScreen()
             }
         }
     }
