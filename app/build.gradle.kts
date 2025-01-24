@@ -67,4 +67,7 @@ dependencies {
 
     // coil image
     implementation(libs.coil)
+
+    // view model
+    implementation(libs.viewmodel.compose)
 }

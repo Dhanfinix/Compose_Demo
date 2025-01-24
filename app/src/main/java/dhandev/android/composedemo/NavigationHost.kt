@@ -12,6 +12,7 @@ import dhandev.android.composedemo.ui.screen.ComposeModifierScreen
 import dhandev.android.composedemo.ui.screen.HomeScreen
 import dhandev.android.composedemo.ui.screen.SimpleComponentScreen
 import dhandev.android.composedemo.ui.screen.StateManagementScreen
+import dhandev.android.composedemo.ui.screen.adv_state.AdvStateManagementScreen
 
 @Composable
 fun NavigationHost(modifier: Modifier = Modifier) {
@@ -38,6 +39,9 @@ fun NavigationHost(modifier: Modifier = Modifier) {
             }
             composable<Destinations.StateManagement> {
                 StateManagementScreen()
+            }
+            composable<Destinations.AdvStateManagement> {
+                AdvStateManagementScreen()
             }
         }
     }

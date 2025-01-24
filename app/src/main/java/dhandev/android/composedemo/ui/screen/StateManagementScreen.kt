@@ -19,6 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import dhandev.android.composedemo.constants.Destinations
 import dhandev.android.composedemo.data.LoginData
 import dhandev.android.composedemo.data.LoginDataKotlin
 import dhandev.android.composedemo.data.loginDataSaver
@@ -33,7 +34,7 @@ fun StateManagementScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     DemoScaffoldComp(
         modifier = modifier,
-        title = "State Management"
+        title = Destinations.StateManagement().title
     ) {
         LazyColumn(
             modifier = Modifier

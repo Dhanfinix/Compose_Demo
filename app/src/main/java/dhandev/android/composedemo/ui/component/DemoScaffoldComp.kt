@@ -25,6 +25,7 @@ fun DemoScaffoldComp(
     title: String,
     isLargeTopAppBar: Boolean = false,
     enableBackNavigation: Boolean = !isLargeTopAppBar,
+    fab: @Composable ()->Unit = {},
     content: @Composable (PaddingValues)->Unit
 ) {
     val navController = LocalNavController.current
@@ -59,7 +60,8 @@ fun DemoScaffoldComp(
                     }
                 )
             }
-        }
+        },
+        floatingActionButton = fab
     ){innerPadding ->
         content(innerPadding)
     }

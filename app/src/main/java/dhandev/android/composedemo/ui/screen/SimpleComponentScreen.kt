@@ -27,6 +27,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import dhandev.android.composedemo.R
+import dhandev.android.composedemo.constants.Destinations
 import dhandev.android.composedemo.ui.component.DemoAsyncImageComp
 import dhandev.android.composedemo.ui.component.DemoScaffoldComp
 
@@ -46,7 +47,7 @@ fun SimpleComponentScreen(modifier: Modifier = Modifier) {
     val scrollState = rememberScrollState()
     DemoScaffoldComp(
         modifier = modifier,
-        title = "Simple Component"
+        title = Destinations.SimpleComponent().title
     ) { innerPadding ->
         Box(
             Modifier

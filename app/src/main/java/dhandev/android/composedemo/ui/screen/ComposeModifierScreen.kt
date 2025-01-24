@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import dhandev.android.composedemo.constants.Destinations
 import dhandev.android.composedemo.ui.component.DemoScaffoldComp
 
 /**
@@ -35,7 +36,7 @@ fun ComposeModifierScreen(
     val context = LocalContext.current
     DemoScaffoldComp(
         modifier = modifier,
-        title = "Modifier"
+        title = Destinations.ComposeModifier().title
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
