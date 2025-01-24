@@ -19,7 +19,11 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     navigateTo: (Destinations) -> Unit = {}
 ) {
-    val destinations = listOf(Destinations.SimpleComponent(), Destinations.ComposeModifier())
+    val destinations = listOf(
+        Destinations.SimpleComponent(),
+        Destinations.ComposeModifier(),
+        Destinations.StateManagement()
+    )
     val context = LocalContext.current
     DemoScaffoldComp(
         modifier = modifier,
@@ -36,7 +40,11 @@ fun HomeScreen(
                     try {
                         navigateTo(it)
                     } catch (e: Exception) {
-                        Toast.makeText(context, "Destination Not Ready Yet", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            "Destination Not Ready Yet",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             }

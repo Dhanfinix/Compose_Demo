@@ -27,7 +27,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import dhandev.android.composedemo.R
-import dhandev.android.composedemo.ui.component.DemoAsyncImage
+import dhandev.android.composedemo.ui.component.DemoAsyncImageComp
 import dhandev.android.composedemo.ui.component.DemoScaffoldComp
 
 /**
@@ -74,7 +74,7 @@ fun SimpleComponentScreen(modifier: Modifier = Modifier) {
                 Text("These image loaded from a url with coil")
                 Row {
                     imageUrls.forEach {
-                        DemoAsyncImage(url = it)
+                        DemoAsyncImageComp(url = it)
                     }
                 }
 
@@ -82,7 +82,7 @@ fun SimpleComponentScreen(modifier: Modifier = Modifier) {
                 Text("Above image can't be scrolled, change it to LazyRow like below")
                 LazyRow {
                     items(imageUrls) {
-                        DemoAsyncImage(url = it)
+                        DemoAsyncImageComp(url = it)
                     }
                 }
 

@@ -10,7 +10,7 @@ import coil.request.ImageRequest
 import dhandev.android.composedemo.R
 
 @Composable
-fun DemoAsyncImage(
+fun DemoAsyncImageComp(
     modifier: Modifier = Modifier,
     url: String
 ) {

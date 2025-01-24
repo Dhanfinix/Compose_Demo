@@ -19,4 +19,9 @@ sealed class Destinations {
     data class ComposeModifier(
         override val title: String = "Modifier",
     ): Destinations()
+
+    @Serializable
+    data class StateManagement(
+        override val title: String = "State Management",
+    ): Destinations()
 }
