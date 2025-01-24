@@ -60,7 +60,10 @@ dependencies {
 
     // navigation
     implementation(libs.androidx.navigation.compose)
+
+    // serialization
     implementation(libs.serialization)
+    implementation(libs.serialization.json)
 
     // coil image
     implementation(libs.coil)

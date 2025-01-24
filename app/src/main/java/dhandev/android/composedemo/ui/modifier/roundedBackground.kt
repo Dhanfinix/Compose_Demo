@@ -1,6 +1,7 @@
 package dhandev.android.composedemo.ui.modifier
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -27,9 +28,13 @@ fun Modifier.roundedBackground(
 @Composable
 fun RoundedColumn(
     modifier: Modifier = Modifier,
+    verticalArrangement: Arrangement.Vertical = Arrangement.Center,
     content: @Composable() (ColumnScope.() -> Unit)
 ) {
-    Column(modifier.roundedBackground()) {
+    Column(
+        modifier.roundedBackground(),
+        verticalArrangement = verticalArrangement
+    ) {
         content()
     }
 }

@@ -10,6 +10,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -18,11 +19,14 @@ import dhandev.android.composedemo.ui.modifier.roundedBackground
 @Composable
 fun DemoTextInputComp(
     modifier: Modifier = Modifier,
+    bgColor: Color = MaterialTheme.colorScheme.surfaceVariant,
     text: String,
+    hint: String = "Input your text...",
     onTextChanged: (String)->Unit
 ) {
     Box(
-        modifier = modifier.roundedBackground()
+        modifier = modifier
+            .roundedBackground(color = bgColor)
     ) {
         val commonModifier = Modifier
             .fillMaxWidth()
@@ -35,7 +39,6 @@ fun DemoTextInputComp(
                 fontSize = 20.sp
             ),
             modifier = commonModifier
-                .background(MaterialTheme.colorScheme.surfaceVariant)
         )
         AnimatedVisibility(
             visible = text.isEmpty(),
@@ -43,7 +46,7 @@ fun DemoTextInputComp(
             exit = fadeOut()
         ) {
             Text(
-                text = "Your text will saved from config changes",
+                text = hint,
                 modifier = commonModifier
             )
         }
