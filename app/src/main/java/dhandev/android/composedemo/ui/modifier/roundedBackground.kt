@@ -14,16 +14,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+
+val DefaultRoundedBgPadding = 16.dp
+val DefaultRoundedBgCornerRadius = 16.dp
 
 @Composable
 fun Modifier.roundedBackground(
     color: Color = MaterialTheme.colorScheme.surfaceVariant,
-    cornerRadius: Int = 16
+    cornerRadius: Dp = DefaultRoundedBgCornerRadius,
+    padding: Dp = DefaultRoundedBgPadding
 ): Modifier = this
-    .clip(RoundedCornerShape(cornerRadius.dp))
+    .clip(RoundedCornerShape(cornerRadius))
     .background(color)
-    .padding(16.dp)
+    .padding(padding)
 
 @Composable
 fun RoundedColumn(

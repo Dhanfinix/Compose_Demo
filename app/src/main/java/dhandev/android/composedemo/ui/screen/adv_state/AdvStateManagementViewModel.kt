@@ -1,6 +1,7 @@
 package dhandev.android.composedemo.ui.screen.adv_state
 
 import androidx.lifecycle.ViewModel
+import dhandev.android.composedemo.ui.component.note_item.NoteItemState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -13,7 +14,9 @@ class AdvStateManagementViewModel : ViewModel() {
     fun addNote(note: String) {
         _uiState.update {
             it.copy(
-                notes = it.notes?.toMutableList()?.apply { add(note) }
+                notes = it.notes?.toMutableList()?.apply {
+                    add(NoteItemState(note))
+                } ?: listOf(NoteItemState(note))
             )
         }
     }
@@ -26,15 +29,32 @@ class AdvStateManagementViewModel : ViewModel() {
     }
     fun changeNote(index: Int, note: String) {
         _uiState.update {
+            val updated = it.notes?.get(index)?.copy(text = note) ?: NoteItemState(note)
             it.copy(
-                notes = it.notes?.toMutableList()?.apply { set(index, note) }
+                notes = it.notes?.toMutableList()?.apply {
+                    set(index, updated)
+                }
             )
         }
     }
-    fun showInputDialog(visible: Boolean) {
+    fun showInputDialog(visible: Boolean = true, index: Int? = null, value: String = "") {
         _uiState.update {
             it.copy(
-                showInputDialog = visible
+                noteDialog = it.noteDialog.copy(
+                    isVisible = visible,
+                    index = index,
+                    note = value
+                )
+            )
+        }
+        if (!visible) onDialogValueChange("")
+    }
+    fun onDialogValueChange(value: String){
+        _uiState.update {
+            it.copy(
+                noteDialog = it.noteDialog.copy(
+                    note = value
+                )
             )
         }
     }

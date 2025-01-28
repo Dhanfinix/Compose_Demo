@@ -1,9 +1,12 @@
 package dhandev.android.composedemo.ui.screen.adv_state
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FloatingActionButton
@@ -19,7 +22,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dhandev.android.composedemo.constants.Destinations
 import dhandev.android.composedemo.ui.component.DemoScaffoldComp
-import dhandev.android.composedemo.ui.component.NoteDialogComp
+import dhandev.android.composedemo.ui.component.note_dialog.NoteDialogComp
+import dhandev.android.composedemo.ui.component.note_dialog.NoteDialogDelegate
+import dhandev.android.composedemo.ui.component.note_item.NoteItemComp
+import dhandev.android.composedemo.ui.component.note_item.NoteItemDelegate
 
 @Composable
 fun AdvStateManagementScreen(
@@ -46,17 +52,49 @@ fun AdvStateManagementScreen(
                     modifier = Modifier.align(Alignment.Center)
                 )
             } else {
-                LazyColumn(
-                    modifier = Modifier.padding(horizontal = 16.dp)
+                AnimatedContent(
+                    targetState = uiState.notes,
+                    modifier = Modifier.fillMaxSize(),
                 ) {
-                    //todo: create note item with edit and delete button
+                    LazyColumn(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        itemsIndexed(it!!){index, note->
+                            NoteItemComp(
+                                noteItemState = note,
+                                delegate = object : NoteItemDelegate{
+                                    override fun onDelete() {
+                                        viewModel.removeNote(index)
+                                    }
+                                    override fun onEdit() {
+                                        viewModel.showInputDialog(true, index, note.text)
+                                    }
+                                }
+                            )
+                        }
+                    }
                 }
             }
 
             NoteDialogComp(
-                isVisible = uiState.showInputDialog,
-                onDismiss = { viewModel.showInputDialog(false) },
-                onSave = { viewModel.addNote(it) }
+                uiState = uiState.noteDialog,
+                delegate = object : NoteDialogDelegate {
+                    override fun onDismiss() {
+                        viewModel.showInputDialog(false)
+                    }
+
+                    override fun onSave(value: String) {
+                        if (uiState.noteDialog.index != null)
+                            viewModel.changeNote(uiState.noteDialog.index!!, value)
+                        else
+                            viewModel.addNote(value)
+                    }
+
+                    override fun onValueChange(value: String) {
+                        viewModel.onDialogValueChange(value)
+                    }
+                }
             )
         }
     }

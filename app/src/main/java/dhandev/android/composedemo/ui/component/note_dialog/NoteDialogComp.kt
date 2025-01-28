@@ -1,4 +1,4 @@
-package dhandev.android.composedemo.ui.component
+package dhandev.android.composedemo.ui.component.note_dialog
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
@@ -31,31 +31,29 @@ import dhandev.android.composedemo.ui.theme.ComposeDemoTheme
 @Composable
 fun NoteDialogComp(
     modifier: Modifier = Modifier,
-    isVisible: Boolean,
-    onSave: (String) -> Unit,
-    onDismiss: () -> Unit,
+    uiState: NoteDialogState,
+    delegate: NoteDialogDelegate,
 ) {
-    var username by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
 
     val doSave = {
-        onSave(username)
-        onDismiss()
+        delegate.onSave(uiState.note)
+        delegate.onDismiss()
     }
 
-    AnimatedVisibility(isVisible) {
+    AnimatedVisibility(uiState.isVisible) {
         LaunchedEffect(Unit) {
             focusRequester.requestFocus()
         }
         Dialog(
-            onDismissRequest = onDismiss,
+            onDismissRequest = { delegate.onDismiss() },
         ) {
             Card {
                 Column(
                     modifier = modifier.padding(16.dp),
                 ) {
                     Text(
-                        text = "Add/ Edit Note",
+                        text = "${if (uiState.isEdit) "Edit" else "Add"} Note",
                         style = MaterialTheme.typography.headlineSmall,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
@@ -65,7 +63,7 @@ fun NoteDialogComp(
                                 .fillMaxWidth()
                                 .focusRequester(focusRequester)
                                 .padding(top = 16.dp, bottom = 32.dp),
-                        value = username,
+                        value = uiState.note,
                         keyboardOptions =
                             KeyboardOptions.Default.copy(
                                 imeAction = ImeAction.Done,
@@ -78,14 +76,14 @@ fun NoteDialogComp(
                         placeholder = {
                             Text("Write your note here...")
                         },
-                        onValueChange = { username = it },
+                        onValueChange = { delegate.onValueChange(it) },
                     )
 
                     Row(
                         modifier = Modifier.align(Alignment.End),
                     ) {
                         TextButton(
-                            onClick = { onDismiss() },
+                            onClick = { delegate.onDismiss() },
                         ) {
                             Text("Discard")
                         }
@@ -106,9 +104,8 @@ fun NoteDialogComp(
 private fun DialogPreview() {
     ComposeDemoTheme {
         NoteDialogComp(
-            isVisible = true,
-            onSave = {},
-            onDismiss = {},
+            uiState = NoteDialogState(),
+            delegate = object : NoteDialogDelegate{}
         )
     }
 }
