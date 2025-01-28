@@ -13,6 +13,7 @@ import dhandev.android.composedemo.constants.Destinations
 import dhandev.android.composedemo.constants.LocalNavController
 import dhandev.android.composedemo.ui.screen.ComposeModifierScreen
 import dhandev.android.composedemo.ui.screen.HomeScreen
+import dhandev.android.composedemo.ui.screen.SideEffectScreen
 import dhandev.android.composedemo.ui.screen.SimpleComponentScreen
 import dhandev.android.composedemo.ui.screen.SplashScreen
 import dhandev.android.composedemo.ui.screen.StateManagementScreen
@@ -52,7 +53,7 @@ fun NavigationHost(modifier: Modifier = Modifier) {
             }
             /** this deeplink can be used, but it wont go through splash screen,
              * so the solution is make the splash screen as single source of truth
-             * for deeplink.
+             * for deeplink, then navigate to target screen using nav controller.
              * deepLinks = listOf(
              *  navDeepLink<Destinations.AdvStateManagement>("${baseUriDeeplink}/adv-state"),
              *  //ex usage: composedemo://show/adv-state?data=test
@@ -63,6 +64,9 @@ fun NavigationHost(modifier: Modifier = Modifier) {
                 AdvStateManagementScreen(
                     deeplinkData = backStackEntry.toRoute<Destinations.AdvStateManagement>().data
                 )
+            }
+            composable<Destinations.SideEffect> {
+                SideEffectScreen()
             }
         }
     }

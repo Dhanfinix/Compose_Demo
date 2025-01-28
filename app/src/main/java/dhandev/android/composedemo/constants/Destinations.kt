@@ -35,4 +35,9 @@ sealed class Destinations {
         override val title: String = "Adv. State Management",
         val data: String? = null
     ): Destinations()
+
+    @Serializable
+    data class SideEffect(
+        override val title: String = "Side-Effect",
+    ): Destinations()
 }
