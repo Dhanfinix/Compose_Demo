@@ -6,6 +6,11 @@ sealed class Destinations {
     abstract val title: String
 
     @Serializable
+    data class Splash(
+        override val title: String = "Splash",
+    ): Destinations()
+
+    @Serializable
     data class Home(
         override val title: String = "Home",
     ): Destinations()

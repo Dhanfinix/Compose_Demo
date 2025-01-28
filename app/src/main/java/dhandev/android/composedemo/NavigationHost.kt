@@ -1,10 +1,9 @@
 package dhandev.android.composedemo
 
-import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -15,13 +14,14 @@ import dhandev.android.composedemo.constants.LocalNavController
 import dhandev.android.composedemo.ui.screen.ComposeModifierScreen
 import dhandev.android.composedemo.ui.screen.HomeScreen
 import dhandev.android.composedemo.ui.screen.SimpleComponentScreen
+import dhandev.android.composedemo.ui.screen.SplashScreen
 import dhandev.android.composedemo.ui.screen.StateManagementScreen
 import dhandev.android.composedemo.ui.screen.adv_state.AdvStateManagementScreen
 
 @Composable
 fun NavigationHost(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
-    val baseUriDeeplink = "composedemo://show"
+    val baseUriDeeplink = "${stringResource(R.string.schemes)}://${stringResource(R.string.host)}"
 
     CompositionLocalProvider(
         LocalNavController provides navController
@@ -29,8 +29,13 @@ fun NavigationHost(modifier: Modifier = Modifier) {
         NavHost(
             modifier = modifier,
             navController = navController,
-            startDestination = Destinations.Home()
+            startDestination = Destinations.Splash()
         ){
+            composable<Destinations.Splash>(
+                deepLinks = listOf(navDeepLink<Destinations.Splash>(baseUriDeeplink))
+            ) {
+                SplashScreen()
+            }
             composable<Destinations.Home> {
                 HomeScreen{
                     navController.navigate(it)
@@ -45,13 +50,16 @@ fun NavigationHost(modifier: Modifier = Modifier) {
             composable<Destinations.StateManagement> {
                 StateManagementScreen()
             }
-            composable<Destinations.AdvStateManagement>(
-                deepLinks = listOf(
-                    navDeepLink<Destinations.AdvStateManagement>("${baseUriDeeplink}/adv-state"),
-                    //ex usage: composedemo://show/adv-state?data=test
-                    navDeepLink<Destinations.AdvStateManagement>("${baseUriDeeplink}/adv-state?{data}")
-                )
-            ) {backStackEntry->
+            /** this deeplink can be used, but it wont go through splash screen,
+             * so the solution is make the splash screen as single source of truth
+             * for deeplink.
+             * deepLinks = listOf(
+             *  navDeepLink<Destinations.AdvStateManagement>("${baseUriDeeplink}/adv-state"),
+             *  //ex usage: composedemo://show/adv-state?data=test
+             *  navDeepLink<Destinations.AdvStateManagement>("${baseUriDeeplink}/adv-state?{data}")
+             * )
+             */
+            composable<Destinations.AdvStateManagement> {backStackEntry->
                 AdvStateManagementScreen(
                     deeplinkData = backStackEntry.toRoute<Destinations.AdvStateManagement>().data
                 )

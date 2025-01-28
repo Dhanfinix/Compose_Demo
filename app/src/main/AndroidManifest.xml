@@ -26,8 +26,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data
-                    android:scheme="composedemo"
-                    android:host="show">
+                    android:scheme="@string/schemes"
+                    android:host="@string/host">
                 </data>
             </intent-filter>
         </activity>

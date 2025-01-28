@@ -67,9 +67,9 @@ fun DemoScaffoldComp(
         content(innerPadding)
     }
 
-    BackHandler {
-        if (enableBackNavigation){
-            navController.navigateUp()
-        }
+    BackHandler(
+        enabled = enableBackNavigation
+    ) {
+        navController.navigateUp()
     }
 }
