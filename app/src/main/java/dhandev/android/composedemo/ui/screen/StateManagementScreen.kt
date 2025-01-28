@@ -20,9 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import dhandev.android.composedemo.constants.Destinations
+import dhandev.android.composedemo.constants.LocalNavController
 import dhandev.android.composedemo.data.LoginData
-import dhandev.android.composedemo.data.LoginDataKotlin
-import dhandev.android.composedemo.data.loginDataSaver
 import dhandev.android.composedemo.ui.component.CounterComp
 import dhandev.android.composedemo.ui.component.DemoScaffoldComp
 import dhandev.android.composedemo.ui.component.DemoTextInputComp
@@ -136,7 +135,15 @@ fun StateManagementScreen(modifier: Modifier = Modifier) {
                     }
                 }
             }
-            // todo: 2. use viewModel as state management
+            item {
+                val navController = LocalNavController.current
+                Button(
+                    onClick = { navController.navigate(Destinations.AdvStateManagement(data = "Testing"))  },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Advance State with View Model")
+                }
+            }
         }
     }
 }

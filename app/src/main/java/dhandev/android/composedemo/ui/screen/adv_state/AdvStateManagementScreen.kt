@@ -1,5 +1,6 @@
 package dhandev.android.composedemo.ui.screen.adv_state
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,6 +19,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dhandev.android.composedemo.constants.Destinations
@@ -30,9 +32,13 @@ import dhandev.android.composedemo.ui.component.note_item.NoteItemDelegate
 @Composable
 fun AdvStateManagementScreen(
     modifier: Modifier = Modifier,
-    viewModel: AdvStateManagementViewModel = viewModel()
+    viewModel: AdvStateManagementViewModel = viewModel(),
+    deeplinkData: String? = null
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    deeplinkData?.let {
+        Toast.makeText(LocalContext.current, it, Toast.LENGTH_SHORT).show()
+    }
     DemoScaffoldComp(
         modifier = modifier,
         title = Destinations.AdvStateManagement().title,

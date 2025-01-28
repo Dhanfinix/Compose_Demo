@@ -1,5 +1,6 @@
 package dhandev.android.composedemo.ui.component
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
@@ -64,5 +65,11 @@ fun DemoScaffoldComp(
         floatingActionButton = fab
     ){innerPadding ->
         content(innerPadding)
+    }
+
+    BackHandler {
+        if (enableBackNavigation){
+            navController.navigateUp()
+        }
     }
 }

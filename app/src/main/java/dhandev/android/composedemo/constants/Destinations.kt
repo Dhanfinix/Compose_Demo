@@ -28,5 +28,6 @@ sealed class Destinations {
     @Serializable
     data class AdvStateManagement(
         override val title: String = "Adv. State Management",
+        val data: String? = null
     ): Destinations()
 }

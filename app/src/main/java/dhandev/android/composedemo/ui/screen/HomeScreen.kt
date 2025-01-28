@@ -22,8 +22,7 @@ fun HomeScreen(
     val destinations = listOf(
         Destinations.SimpleComponent(),
         Destinations.ComposeModifier(),
-        Destinations.StateManagement(),
-        Destinations.AdvStateManagement()
+        Destinations.StateManagement()
     )
     val context = LocalContext.current
     DemoScaffoldComp(
