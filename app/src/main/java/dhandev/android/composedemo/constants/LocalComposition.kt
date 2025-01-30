@@ -11,3 +11,7 @@ val LocalNavController = compositionLocalOf<NavController> {
 val LocalActivity = compositionLocalOf<Activity> {
     error("No Activity found!")
 }
+
+val LocalTheme = compositionLocalOf<ThemeMode> {
+    error("No Theme found!")
+}

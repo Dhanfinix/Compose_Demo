@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.serialization)
+    alias(libs.plugins.dagger.hilt)
+    kotlin("kapt")
 }
 
 android {
@@ -70,4 +72,12 @@ dependencies {
 
     // view model
     implementation(libs.viewmodel.compose)
+
+    // hilt
+    implementation(libs.dagger.hilt)
+    kapt(libs.dagger.hilt.compiler)
+    implementation(libs.hilt.nav)
+
+    // dataStore
+    implementation(libs.datastore)
 }

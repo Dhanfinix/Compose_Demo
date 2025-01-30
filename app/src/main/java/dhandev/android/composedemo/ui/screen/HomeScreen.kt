@@ -1,6 +1,7 @@
 package dhandev.android.composedemo.ui.screen
 
 import android.widget.Toast
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -23,7 +24,8 @@ fun HomeScreen(
         Destinations.SimpleComponent(),
         Destinations.ComposeModifier(),
         Destinations.StateManagement(),
-        Destinations.SideEffect()
+        Destinations.SideEffect(),
+        Destinations.Theming()
     )
     val context = LocalContext.current
     DemoScaffoldComp(
@@ -33,6 +35,7 @@ fun HomeScreen(
     ) {innerPadding ->
         LazyColumn(
             modifier = Modifier
+                .fillMaxSize()
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp)
         ) {

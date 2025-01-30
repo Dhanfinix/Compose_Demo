@@ -13,6 +13,9 @@ plugin-serialization = "2.1.0"
 serialization = "1.8.0"
 coil = "2.7.0"
 viewmodel = "2.6.1"
+hilt = "2.51.1"
+hilt-nav = "1.2.0"
+datastore = "1.1.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -34,10 +37,14 @@ serialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization
 serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization" }
 coil = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "viewmodel" }
+dagger-hilt = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
+dagger-hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
+hilt-nav = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hilt-nav" }
+datastore = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "plugin-serialization" }
-
+dagger-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt"}

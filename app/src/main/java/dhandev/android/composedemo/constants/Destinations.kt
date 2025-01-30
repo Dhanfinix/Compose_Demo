@@ -40,4 +40,9 @@ sealed class Destinations {
     data class SideEffect(
         override val title: String = "Side-Effect",
     ): Destinations()
+
+    @Serializable
+    data class Theming(
+        override val title: String = "Theming",
+    ): Destinations()
 }
