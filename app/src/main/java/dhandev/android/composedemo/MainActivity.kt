@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.CompositionLocalProvider
 import dhandev.android.composedemo.constants.LocalActivity
+import dhandev.android.composedemo.constants.ThemeMode
 import dhandev.android.composedemo.ui.theme.ComposeDemoTheme
 
 class MainActivity : ComponentActivity() {
@@ -16,7 +17,9 @@ class MainActivity : ComponentActivity() {
             CompositionLocalProvider(
                 LocalActivity provides this
             ) {
-                ComposeDemoTheme {
+                ComposeDemoTheme(
+                    mode = ThemeMode.SYSTEM
+                ) {
                     NavigationHost()
                 }
             }

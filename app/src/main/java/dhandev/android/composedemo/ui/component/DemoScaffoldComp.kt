@@ -67,6 +67,7 @@ fun DemoScaffoldComp(
         content(innerPadding)
     }
 
+    /** Handle back navigation from System Back Button */
     BackHandler(
         enabled = enableBackNavigation
     ) {
