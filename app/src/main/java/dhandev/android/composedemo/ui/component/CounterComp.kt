@@ -9,7 +9,9 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import dhandev.android.composedemo.ui.modifier.RoundedRow
+import dhandev.android.composedemo.utils.preview.PreviewWrapperComp
 
 /**
  * This is a stateful component, the state is managed by the component itself.
@@ -33,4 +35,12 @@ fun CounterComp(
             Text(text = "Increment")
         }
     }
+}
+
+@Preview
+@Composable
+private fun CounterCompPrev() {
+    PreviewWrapperComp(
+        content = { CounterComp() }
+    )
 }
