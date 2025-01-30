@@ -20,14 +20,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dhandev.android.composedemo.constants.Destinations
+import dhandev.android.composedemo.constants.ThemeMode
 import dhandev.android.composedemo.ui.component.DemoScaffoldComp
 import dhandev.android.composedemo.ui.component.note_dialog.NoteDialogComp
 import dhandev.android.composedemo.ui.component.note_dialog.NoteDialogDelegate
 import dhandev.android.composedemo.ui.component.note_item.NoteItemComp
 import dhandev.android.composedemo.ui.component.note_item.NoteItemDelegate
+import dhandev.android.composedemo.utils.preview.PreviewWrapperComp
+import dhandev.android.composedemo.utils.preview.ThemePreviewProvider
 
 @Composable
 fun AdvStateManagementScreen(
@@ -111,4 +116,16 @@ private fun AddNoteFab(onClick: ()->Unit){
     FloatingActionButton(onClick) {
         Icon(Icons.Default.Add, null)
     }
+}
+
+@Preview
+@Composable
+private fun AdvStateManPreview(
+    @PreviewParameter(ThemePreviewProvider::class)
+    themeMode: ThemeMode
+) {
+    PreviewWrapperComp(
+        themeMode = themeMode,
+        content = {AdvStateManagementScreen()}
+    )
 }

@@ -13,7 +13,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ThemingViewModel @Inject constructor(
-    private val localStorage: SettingsLocalStorage,
+    private val localStorage: SettingsLocalStorage?,
 ): ViewModel() {
     private val _uiState = MutableStateFlow(ThemingScreenState())
     val uiState : StateFlow<ThemingScreenState>
@@ -30,7 +30,7 @@ class ThemingViewModel @Inject constructor(
     }
     fun changeTheme(themeMode: ThemeMode) {
         viewModelScope.launch {
-            localStorage.saveThemeMode(themeMode)
+            localStorage?.saveThemeMode(themeMode)
         }
     }
 }

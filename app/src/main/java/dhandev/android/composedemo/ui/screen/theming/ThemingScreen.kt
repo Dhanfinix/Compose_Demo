@@ -10,11 +10,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dhandev.android.composedemo.constants.Destinations
 import dhandev.android.composedemo.constants.LocalTheme
+import dhandev.android.composedemo.constants.ThemeMode
 import dhandev.android.composedemo.ui.component.DemoScaffoldComp
 import dhandev.android.composedemo.ui.component.segment_button.SegmentedButtonComp
 import dhandev.android.composedemo.ui.theme.ColorFFF
@@ -22,6 +26,8 @@ import dhandev.android.composedemo.ui.theme.ColorRed100
 import dhandev.android.composedemo.ui.theme.MontserratFamily
 import dhandev.android.composedemo.ui.theme.body1
 import dhandev.android.composedemo.ui.theme.headline3
+import dhandev.android.composedemo.utils.preview.PreviewWrapperComp
+import dhandev.android.composedemo.utils.preview.ThemePreviewProvider
 
 @Composable
 fun ThemingScreen(
@@ -29,7 +35,10 @@ fun ThemingScreen(
     viewModel: ThemingViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val currentTheme = LocalTheme.current
+    val currentTheme =
+        if (LocalInspectionMode.current)
+            ThemeMode.SYSTEM
+        else LocalTheme.current
     viewModel.setSelectedTheme(currentTheme)
 
     DemoScaffoldComp(
@@ -83,4 +92,20 @@ fun ThemingScreen(
             }
         }
     }
+}
+
+@Preview
+@Composable
+private fun ThemingPreview(
+    @PreviewParameter(ThemePreviewProvider::class)
+    themeMode: ThemeMode
+) {
+    PreviewWrapperComp(
+        themeMode = themeMode,
+        content = {
+            ThemingScreen(
+                viewModel = ThemingViewModel(null)
+            )
+        }
+    )
 }

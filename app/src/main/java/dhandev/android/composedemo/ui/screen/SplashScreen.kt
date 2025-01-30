@@ -11,13 +11,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.navigation.NavController
 import dhandev.android.composedemo.R
 import dhandev.android.composedemo.constants.DeeplinksPath
 import dhandev.android.composedemo.constants.Destinations
 import dhandev.android.composedemo.constants.LocalActivity
 import dhandev.android.composedemo.constants.LocalNavController
+import dhandev.android.composedemo.constants.ThemeMode
+import dhandev.android.composedemo.utils.preview.PreviewWrapperComp
+import dhandev.android.composedemo.utils.preview.ThemePreviewProvider
 import kotlinx.coroutines.delay
 
 @Composable
@@ -25,7 +31,8 @@ fun SplashScreen(
     modifier: Modifier = Modifier
 ) {
     val navController = LocalNavController.current
-    val intent = LocalActivity.current.intent
+    val intent = if (LocalInspectionMode.current) Intent()
+    else LocalActivity.current.intent
     val schemes = stringResource(R.string.schemes)
     val host = stringResource(R.string.host)
 
@@ -74,4 +81,16 @@ private fun handleDeeplink(
             inclusive = true
         }
     }
+}
+
+@Preview
+@Composable
+private fun SplashPreview(
+    @PreviewParameter(ThemePreviewProvider::class)
+    themeMode: ThemeMode
+) {
+    PreviewWrapperComp(
+        themeMode = themeMode,
+        content = { SplashScreen() }
+    )
 }

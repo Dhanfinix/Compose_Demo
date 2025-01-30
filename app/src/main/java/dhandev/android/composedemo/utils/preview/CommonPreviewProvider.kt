@@ -1,4 +1,4 @@
-package dhandev.android.composedemo.utils
+package dhandev.android.composedemo.utils.preview
 
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text

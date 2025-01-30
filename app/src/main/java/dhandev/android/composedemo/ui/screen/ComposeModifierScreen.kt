@@ -20,9 +20,14 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import dhandev.android.composedemo.constants.Destinations
+import dhandev.android.composedemo.constants.ThemeMode
 import dhandev.android.composedemo.ui.component.DemoScaffoldComp
+import dhandev.android.composedemo.utils.preview.PreviewWrapperComp
+import dhandev.android.composedemo.utils.preview.ThemePreviewProvider
 
 /**
  * Demonstrates various Modifier usage in Jetpack Compose.
@@ -134,4 +139,16 @@ fun ComposeModifierScreen(
             }
         }
     }
+}
+
+@Preview
+@Composable
+private fun ComposeModifierPreview(
+    @PreviewParameter(ThemePreviewProvider::class)
+    themeMode: ThemeMode
+) {
+    PreviewWrapperComp(
+        themeMode = themeMode,
+        content = { ComposeModifierScreen() }
+    )
 }

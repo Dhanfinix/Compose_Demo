@@ -17,6 +17,8 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.navigation.compose.rememberNavController
 import dhandev.android.composedemo.constants.LocalNavController
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -29,7 +31,10 @@ fun DemoScaffoldComp(
     fab: @Composable ()->Unit = {},
     content: @Composable (PaddingValues)->Unit
 ) {
-    val navController = LocalNavController.current
+    val navController =
+        if (LocalInspectionMode.current)
+            rememberNavController()
+        else LocalNavController.current
     val scrollBehavior = exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
     // same as coordinator layout in view-based UI, it contain slot of view that can be used

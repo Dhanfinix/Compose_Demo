@@ -19,11 +19,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import dhandev.android.composedemo.constants.Destinations
+import dhandev.android.composedemo.constants.ThemeMode
 import dhandev.android.composedemo.ui.component.DemoScaffoldComp
 import dhandev.android.composedemo.ui.component.OnlineStatus
 import dhandev.android.composedemo.ui.component.side_effect.NetworkStatusObserver
+import dhandev.android.composedemo.utils.preview.PreviewWrapperComp
+import dhandev.android.composedemo.utils.preview.ThemePreviewProvider
 import kotlinx.coroutines.delay
 
 @Composable
@@ -106,4 +111,16 @@ fun SideEffectScreen(
             )
         }
     }
+}
+
+@Preview
+@Composable
+private fun SideEffectPreview(
+    @PreviewParameter(ThemePreviewProvider::class)
+    themeMode: ThemeMode
+) {
+    PreviewWrapperComp(
+        themeMode = themeMode,
+        content = { SideEffectScreen() }
+    )
 }

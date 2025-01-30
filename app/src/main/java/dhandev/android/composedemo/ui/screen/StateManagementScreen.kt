@@ -18,15 +18,20 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import dhandev.android.composedemo.constants.Destinations
 import dhandev.android.composedemo.constants.LocalNavController
+import dhandev.android.composedemo.constants.ThemeMode
 import dhandev.android.composedemo.data.LoginData
 import dhandev.android.composedemo.ui.component.CounterComp
 import dhandev.android.composedemo.ui.component.DemoScaffoldComp
 import dhandev.android.composedemo.ui.component.DemoTextInputComp
 import dhandev.android.composedemo.ui.component.StateChangeComp
 import dhandev.android.composedemo.ui.modifier.RoundedColumn
+import dhandev.android.composedemo.utils.preview.PreviewWrapperComp
+import dhandev.android.composedemo.utils.preview.ThemePreviewProvider
 
 @Composable
 fun StateManagementScreen(modifier: Modifier = Modifier) {
@@ -146,4 +151,16 @@ fun StateManagementScreen(modifier: Modifier = Modifier) {
             }
         }
     }
+}
+
+@Preview
+@Composable
+private fun StateManagementPreview(
+    @PreviewParameter(ThemePreviewProvider::class)
+    themeMode: ThemeMode
+) {
+    PreviewWrapperComp(
+        themeMode = themeMode,
+        content = { StateManagementScreen() }
+    )
 }
