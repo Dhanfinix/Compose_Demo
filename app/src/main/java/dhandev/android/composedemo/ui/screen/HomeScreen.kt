@@ -28,7 +28,8 @@ fun HomeScreen(
         Destinations.ComposeModifier(),
         Destinations.StateManagement(),
         Destinations.SideEffect(),
-        Destinations.Theming()
+        Destinations.Theming(),
+        Destinations.Compatibility(),
     )
     val context = LocalContext.current
     DemoScaffoldComp(

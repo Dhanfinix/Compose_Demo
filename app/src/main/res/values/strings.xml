@@ -2,4 +2,7 @@
     <string name="app_name">Compose Demo</string>
     <string name="schemes">composedemo</string>
     <string name="host">show</string>
+    <string name="your_username_here">Your username here...</string>
+    <string name="username">Username</string>
+    <string name="strik_text">This is strike text also from view-based library</string>
 </resources>

@@ -39,6 +39,7 @@ android {
     }
     buildFeatures {
         compose = true
+        viewBinding = true
     }
 }
 
@@ -80,4 +81,11 @@ dependencies {
 
     // dataStore
     implementation(libs.datastore)
+
+    // EDTS Design System - View based lib
+    implementation(libs.edts.ds)
+    implementation(libs.view.material)
+
+    // ViewBinding in compose
+    implementation(libs.compose.view.binding)
 }

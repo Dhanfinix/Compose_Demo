@@ -11,6 +11,7 @@ import androidx.navigation.navDeepLink
 import androidx.navigation.toRoute
 import dhandev.android.composedemo.constants.Destinations
 import dhandev.android.composedemo.constants.LocalNavController
+import dhandev.android.composedemo.ui.screen.CompatibilityScreen
 import dhandev.android.composedemo.ui.screen.ComposeModifierScreen
 import dhandev.android.composedemo.ui.screen.HomeScreen
 import dhandev.android.composedemo.ui.screen.SideEffectScreen
@@ -71,6 +72,9 @@ fun NavigationHost(modifier: Modifier = Modifier) {
             }
             composable<Destinations.Theming> {
                 ThemingScreen()
+            }
+            composable<Destinations.Compatibility> {
+                CompatibilityScreen()
             }
         }
     }

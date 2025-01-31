@@ -45,4 +45,9 @@ sealed class Destinations {
     data class Theming(
         override val title: String = "Theming",
     ): Destinations()
+
+    @Serializable
+    data class Compatibility(
+        override val title: String = "Compatibility"
+    ): Destinations()
 }
