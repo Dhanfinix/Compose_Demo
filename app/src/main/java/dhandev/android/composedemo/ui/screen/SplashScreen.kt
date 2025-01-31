@@ -22,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import dhandev.android.composedemo.R
 import dhandev.android.composedemo.constants.DeeplinksPath
 import dhandev.android.composedemo.constants.Destinations
@@ -36,7 +37,9 @@ import kotlinx.coroutines.delay
 fun SplashScreen(
     modifier: Modifier = Modifier
 ) {
-    val navController = LocalNavController.current
+    val navController = if (LocalInspectionMode.current)
+        rememberNavController()
+        else LocalNavController.current
     val intent = if (LocalInspectionMode.current) Intent()
     else LocalActivity.current.intent
     val schemes = stringResource(R.string.schemes)

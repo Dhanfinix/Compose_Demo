@@ -20,15 +20,21 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.viewinterop.AndroidViewBinding
 import androidx.core.widget.addTextChangedListener
 import dhandev.android.composedemo.constants.Destinations
 import dhandev.android.composedemo.constants.LocalActivity
+import dhandev.android.composedemo.constants.ThemeMode
 import dhandev.android.composedemo.databinding.ViewInComposeBinding
 import dhandev.android.composedemo.ui.component.DemoScaffoldComp
 import dhandev.android.composedemo.ui_view.ComposeInViewActivity
+import dhandev.android.composedemo.utils.preview.PreviewWrapperComp
+import dhandev.android.composedemo.utils.preview.ThemePreviewProvider
 import id.co.edtslib.edtsds.ButtonView
 import id.co.edtslib.edtsds.R
 import id.co.edtslib.edtsds.StrikeTextView
@@ -40,7 +46,7 @@ import id.co.edtslib.edtsds.ratingview.RatingView
 fun CompatibilityScreen(
     modifier: Modifier = Modifier
 ) {
-    val activity = LocalActivity.current
+    val activity = if (LocalInspectionMode.current) null else LocalActivity.current
     val context = LocalContext.current
     var selectedRating by rememberSaveable { mutableStateOf<Int?>(null) }
     var enableButton by rememberSaveable { mutableStateOf(false) }
@@ -148,7 +154,7 @@ fun CompatibilityScreen(
                 Text("Btw we also can use composable inside a View XML Layout")
                 Button(
                     onClick = {
-                        ComposeInViewActivity.open(activity)
+                        activity?.let { ComposeInViewActivity.open(it) }
                     }
                 ) {
                     Text("Go to View XML Layout")
@@ -156,4 +162,16 @@ fun CompatibilityScreen(
             }
         }
     }
+}
+
+@Preview
+@Composable
+private fun CompatibilityPreview(
+    @PreviewParameter(ThemePreviewProvider::class)
+    themeMode: ThemeMode
+) {
+    PreviewWrapperComp(
+        themeMode = themeMode,
+        content = { CompatibilityScreen() }
+    )
 }
