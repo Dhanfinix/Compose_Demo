@@ -50,4 +50,9 @@ sealed class Destinations {
     data class Compatibility(
         override val title: String = "Compatibility"
     ): Destinations()
+
+    @Serializable
+    data class ComposeInView(
+        override val title: String = "Compose in View"
+    ): Destinations()
 }

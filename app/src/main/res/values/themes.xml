@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <style name="Theme.ComposeDemo" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <!-- AppCompatActivity theme should be child of Theme.MaterialComponents    -->
+    <style name="Theme.ViewActivity" parent="Theme.MaterialComponents.DayNight.DarkActionBar"/>
 </resources>

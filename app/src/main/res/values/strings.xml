@@ -5,4 +5,5 @@
     <string name="your_username_here">Your username here...</string>
     <string name="username">Username</string>
     <string name="strik_text">This is strike text also from view-based library</string>
+    <string name="hello_from_view">Hello from View!</string>
 </resources>

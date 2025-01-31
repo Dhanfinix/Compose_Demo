@@ -33,6 +33,12 @@
                 </data>
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ui_view.ComposeInViewActivity"
+            android:exported="false"
+            android:theme="@style/Theme.ViewActivity">
+        </activity>
+
     </application>
 
 </manifest>

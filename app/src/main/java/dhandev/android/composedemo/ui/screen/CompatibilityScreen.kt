@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -24,8 +25,10 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.viewinterop.AndroidViewBinding
 import androidx.core.widget.addTextChangedListener
 import dhandev.android.composedemo.constants.Destinations
+import dhandev.android.composedemo.constants.LocalActivity
 import dhandev.android.composedemo.databinding.ViewInComposeBinding
 import dhandev.android.composedemo.ui.component.DemoScaffoldComp
+import dhandev.android.composedemo.ui_view.ComposeInViewActivity
 import id.co.edtslib.edtsds.ButtonView
 import id.co.edtslib.edtsds.R
 import id.co.edtslib.edtsds.StrikeTextView
@@ -37,6 +40,7 @@ import id.co.edtslib.edtsds.ratingview.RatingView
 fun CompatibilityScreen(
     modifier: Modifier = Modifier
 ) {
+    val activity = LocalActivity.current
     val context = LocalContext.current
     var selectedRating by rememberSaveable { mutableStateOf<Int?>(null) }
     var enableButton by rememberSaveable { mutableStateOf(false) }
@@ -137,6 +141,17 @@ fun CompatibilityScreen(
                     }
 
                     tvName.text = username.ifEmpty { "Username" }
+                }
+            }
+            item {
+                HorizontalDivider()
+                Text("Btw we also can use composable inside a View XML Layout")
+                Button(
+                    onClick = {
+                        ComposeInViewActivity.open(activity)
+                    }
+                ) {
+                    Text("Go to View XML Layout")
                 }
             }
         }
