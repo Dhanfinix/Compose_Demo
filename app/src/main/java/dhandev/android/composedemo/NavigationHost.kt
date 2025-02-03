@@ -18,6 +18,7 @@ import dhandev.android.composedemo.ui.screen.SideEffectScreen
 import dhandev.android.composedemo.ui.screen.SimpleComponentScreen
 import dhandev.android.composedemo.ui.screen.SplashScreen
 import dhandev.android.composedemo.ui.screen.StateManagementScreen
+import dhandev.android.composedemo.ui.screen.WhyComposeScreen
 import dhandev.android.composedemo.ui.screen.adv_state.AdvStateManagementScreen
 import dhandev.android.composedemo.ui.screen.theming.ThemingScreen
 
@@ -75,6 +76,9 @@ fun NavigationHost(modifier: Modifier = Modifier) {
             }
             composable<Destinations.Compatibility> {
                 CompatibilityScreen()
+            }
+            composable<Destinations.WhyCompose> {
+                WhyComposeScreen()
             }
         }
     }

@@ -24,6 +24,7 @@ fun HomeScreen(
     navigateTo: (Destinations) -> Unit = {}
 ) {
     val destinations = listOf(
+        Destinations.WhyCompose(),
         Destinations.SimpleComponent(),
         Destinations.ComposeModifier(),
         Destinations.StateManagement(),

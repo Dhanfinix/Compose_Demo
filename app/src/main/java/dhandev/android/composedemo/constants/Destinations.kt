@@ -16,6 +16,11 @@ sealed class Destinations {
     ): Destinations()
 
     @Serializable
+    data class WhyCompose(
+        override val title: String = "Why Compose",
+    ): Destinations()
+
+    @Serializable
     data class SimpleComponent(
         override val title: String = "Component & Basic Layout",
     ): Destinations()
