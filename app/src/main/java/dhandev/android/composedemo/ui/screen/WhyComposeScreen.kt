@@ -13,8 +13,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import dhandev.android.composedemo.constants.Destinations
+import dhandev.android.composedemo.constants.LocalActivity
+import dhandev.android.composedemo.constants.getListData
 import dhandev.android.composedemo.ui.component.DemoScaffoldComp
 import dhandev.android.composedemo.ui.component.NumberedValueItemComp
+import dhandev.android.composedemo.ui_view.list_item.ListItemActivity
 
 @Composable
 fun WhyComposeScreen(
@@ -37,12 +40,16 @@ fun WhyComposeScreen(
                         "To fully see the difference, please see the source code")
             }
             item {
+                val activity = LocalActivity.current
                 Button(
-                    onClick = { /*TODO*/ }
+                    onClick = {
+                        ListItemActivity.open(activity)
+                    }
                 ) {
                     Text("Go to XML version")
                 }
             }
+            //Char and line count is only on related part, excluding import and data
             item {
                 HorizontalDivider()
                 Text("Below is the compose version, total 947 Char (Include space) and 31 line breaks")
@@ -58,17 +65,4 @@ fun WhyComposeScreen(
             }
         }
     }
-}
-
-private fun getListData():List<String>{
-    return listOf(
-        "Mobile Engineer",
-        "Frontend Engineer",
-        "Backend Engineer",
-        "Quality Assurance Engineer",
-        "UX Engineer",
-        "Product Designer",
-        "Project Manager",
-        "Others..."
-    )
 }

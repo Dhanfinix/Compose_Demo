@@ -38,6 +38,11 @@
             android:exported="false"
             android:theme="@style/Theme.ViewActivity">
         </activity>
+        <activity
+            android:name=".ui_view.list_item.ListItemActivity"
+            android:exported="false"
+            android:theme="@style/Theme.ViewActivity">
+        </activity>
 
     </application>
 
