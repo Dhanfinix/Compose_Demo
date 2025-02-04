@@ -13,6 +13,6 @@
         android:id="@+id/compose_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:composableName="dhandev.android.composedemo.ui_view.ComposeInViewActivityKt.ComposeGreetingPreview"/>
+        tools:composableName="edts.android.composedemo.ui_view.ComposeInViewActivityKt.ComposeGreetingPreview"/>
 
 </LinearLayout>

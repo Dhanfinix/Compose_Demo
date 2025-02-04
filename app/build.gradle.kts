@@ -10,11 +10,11 @@ plugins {
 }
 
 android {
-    namespace = "dhandev.android.composedemo"
+    namespace = "edts.android.composedemo"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "dhandev.android.composedemo"
+        applicationId = "edts.android.composedemo"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
