@@ -36,6 +36,8 @@ import dhandev.android.composedemo.utils.preview.ThemePreviewProvider
 @Composable
 fun StateManagementScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
+    var isActiveState by remember { mutableStateOf(false) }
+
     DemoScaffoldComp(
         modifier = modifier,
         title = Destinations.StateManagement().title
@@ -47,6 +49,7 @@ fun StateManagementScreen(modifier: Modifier = Modifier) {
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            //No.1
             item {
                 /** Using regular variable as state */
                 var isActive = false
@@ -57,6 +60,7 @@ fun StateManagementScreen(modifier: Modifier = Modifier) {
                     isActive = !isActive
                 }
             }
+            //No.2
             item {
                 /**
                  * This is an example of State Hoisting in Compose.
@@ -66,21 +70,38 @@ fun StateManagementScreen(modifier: Modifier = Modifier) {
                  * Here, the `isActive` state is hoisted to the `StateManagementScreen`,
                  * allowing `StateChangeComp` to both read and modify it.
                  */
-                var isActive by remember { mutableStateOf(false) }
                 StateChangeComp(
-                    isActive,
+                    isActiveState,
                     title = "Mutable State variable",
                 ){
-                    isActive = !isActive
+                    isActiveState = !isActiveState
                 }
             }
+            //No.3
+            if (isActiveState){
+                item {
+                    Text("This text appear only when state is active")
+                }
+            }
+            //No.4
             item {
                 /** Stateful component */
                 CounterComp()
             }
+            //No.5
+            item {
+                var text by remember { mutableStateOf("") }
+                DemoTextInputComp(
+                    text = text,
+                    hint = "Your text won't be saved from config changes",
+                    onTextChanged = {newText-> text = newText }
+                )
+            }
+            //No.6
             item {
                 HorizontalDivider()
             }
+            //No.7
             /**
              * All Above example can't survive configuration change
              * like rotation/ theme change.
@@ -94,6 +115,7 @@ fun StateManagementScreen(modifier: Modifier = Modifier) {
                     onTextChanged = {newText-> text = newText }
                 )
             }
+            //No.8
             /** * Login Data with rememberSavable
              * Using `rememberSavable` to remember the state of a data class (`LoginData`).
              * This ensures that the login data (username and password) survives configuration
@@ -140,6 +162,7 @@ fun StateManagementScreen(modifier: Modifier = Modifier) {
                     }
                 }
             }
+            //No.9
             item {
                 val navController = LocalNavController.current
                 Button(

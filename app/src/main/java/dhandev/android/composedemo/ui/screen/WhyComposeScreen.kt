@@ -11,13 +11,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import dhandev.android.composedemo.constants.Destinations
 import dhandev.android.composedemo.constants.LocalActivity
+import dhandev.android.composedemo.constants.ThemeMode
 import dhandev.android.composedemo.constants.getListData
 import dhandev.android.composedemo.ui.component.DemoScaffoldComp
 import dhandev.android.composedemo.ui.component.NumberedValueItemComp
 import dhandev.android.composedemo.ui_view.list_item.ListItemActivity
+import dhandev.android.composedemo.utils.preview.PreviewWrapperComp
+import dhandev.android.composedemo.utils.preview.ThemePreviewProvider
 
 @Composable
 fun WhyComposeScreen(
@@ -40,10 +46,10 @@ fun WhyComposeScreen(
                         "To fully see the difference, please see the source code")
             }
             item {
-                val activity = LocalActivity.current
+                val activity = if (LocalInspectionMode.current) null else LocalActivity.current
                 Button(
                     onClick = {
-                        ListItemActivity.open(activity)
+                        activity?.let { ListItemActivity.open(it) }
                     }
                 ) {
                     Text("Go to XML version")
@@ -65,4 +71,16 @@ fun WhyComposeScreen(
             }
         }
     }
+}
+
+@Preview
+@Composable
+private fun WhyComposePreview(
+    @PreviewParameter(ThemePreviewProvider::class)
+    themeMode: ThemeMode
+) {
+    PreviewWrapperComp(
+        themeMode = themeMode,
+        content = { WhyComposeScreen() }
+    )
 }
