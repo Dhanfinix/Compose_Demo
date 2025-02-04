@@ -1,5 +1,6 @@
 package dhandev.android.composedemo.ui.screen
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
@@ -59,8 +60,7 @@ fun SideEffectScreen(
     }
 
     NetworkStatusObserver(
-        onNetworkAvailable = {isOnline = true},
-        onNetworkUnavailable = {isOnline = false}
+        onNetworkAvailable = {isOnline = it}
     )
 
     DemoScaffoldComp(
@@ -70,6 +70,7 @@ fun SideEffectScreen(
         /** An effect that triggered everytime demoScaffoldComp is recomposed */
         SideEffect {
             recompositionCount++
+            Log.d("isOnline State", "$isOnline")
         }
         LazyColumn(
             modifier = Modifier

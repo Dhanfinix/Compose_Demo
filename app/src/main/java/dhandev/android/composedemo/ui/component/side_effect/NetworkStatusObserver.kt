@@ -11,8 +11,7 @@ import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun NetworkStatusObserver(
-    onNetworkAvailable: () -> Unit,
-    onNetworkUnavailable: () -> Unit
+    onNetworkAvailable: (Boolean) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -20,11 +19,11 @@ fun NetworkStatusObserver(
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val networkCallback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
-                onNetworkAvailable()
+                onNetworkAvailable(true)
             }
 
             override fun onLost(network: Network) {
-                onNetworkUnavailable()
+                onNetworkAvailable(false)
             }
         }
 
