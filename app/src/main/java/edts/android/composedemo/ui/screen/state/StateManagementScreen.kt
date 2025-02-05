@@ -1,4 +1,4 @@
-package edts.android.composedemo.ui.screen
+package edts.android.composedemo.ui.screen.state
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -11,6 +11,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,6 +22,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import edts.android.composedemo.constants.Destinations
 import edts.android.composedemo.constants.LocalNavController
 import edts.android.composedemo.constants.ThemeMode
@@ -37,6 +39,8 @@ import edts.android.composedemo.utils.preview.ThemePreviewProvider
 fun StateManagementScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     var isActiveState by remember { mutableStateOf(false) }
+    val stepCount by stepCounterFlow.collectAsState(0)
+    val stepCountLifecycle by stepCounterFlow.collectAsStateWithLifecycle(0)
 
     DemoScaffoldComp(
         modifier = modifier,
@@ -171,6 +175,18 @@ fun StateManagementScreen(modifier: Modifier = Modifier) {
                 ) {
                     Text("Advance State with View Model")
                 }
+            }
+            //No.10
+            item {
+                Text(text = "Step Count: $stepCount")
+            }
+            //No.11
+            //will only collect if the lifecycle is active (screen in foreground)
+            //paused when the app on background
+            //restarted when back to foreground
+            //to make it survive configuration change we can use viewModel to store latest value
+            item {
+                Text(text = "Step Count with Lifecycle: $stepCountLifecycle")
             }
         }
     }

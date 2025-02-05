@@ -1,10 +1,13 @@
 package edts.android.composedemo.ui.screen.adv_state
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import edts.android.composedemo.ui.component.note_item.NoteItemState
+import edts.android.composedemo.ui.screen.state.stepCounterFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 class AdvStateManagementViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(AdvScreenState())
@@ -56,6 +59,18 @@ class AdvStateManagementViewModel : ViewModel() {
                     note = value
                 )
             )
+        }
+    }
+
+    init {
+        viewModelScope.launch {
+            stepCounterFlow.collect {
+                _uiState.update {
+                    it.copy(
+                        stepCount = it.stepCount + 1
+                    )
+                }
+            }
         }
     }
 }

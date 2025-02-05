@@ -6,5 +6,6 @@ import edts.android.composedemo.ui.component.note_item.NoteItemState
 data class AdvScreenState(
     val notes: List<NoteItemState>? = null,
     // text input state
-    val noteDialog: NoteDialogState = NoteDialogState()
+    val noteDialog: NoteDialogState = NoteDialogState(),
+    val stepCount: Int = 0
 )

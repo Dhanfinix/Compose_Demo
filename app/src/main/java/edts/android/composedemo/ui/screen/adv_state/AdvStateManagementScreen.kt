@@ -1,9 +1,11 @@
 package edts.android.composedemo.ui.screen.adv_state
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,6 +25,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import edts.android.composedemo.constants.Destinations
 import edts.android.composedemo.constants.ThemeMode
@@ -41,6 +44,7 @@ fun AdvStateManagementScreen(
     deeplinkData: String? = null
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val uiStateLifecycle by viewModel.uiState.collectAsStateWithLifecycle()
     deeplinkData?.let {
         Toast.makeText(LocalContext.current, it, Toast.LENGTH_SHORT).show()
     }
@@ -57,11 +61,23 @@ fun AdvStateManagementScreen(
                 .padding(innerPadding)
         ) {
             if (uiState.notes.isNullOrEmpty()) {
-                Text(
-                    text = "No Notes",
-                    style = MaterialTheme.typography.headlineSmall,
-                    modifier = Modifier.align(Alignment.Center)
-                )
+                Column(
+                    modifier = Modifier.align(Alignment.Center),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "No Notes",
+                        style = MaterialTheme.typography.headlineSmall,
+                    )
+                    //this to demo collectLatestWithLifeCycle,
+                    //in short it stop collecting latest data from viewModel when
+                    //app paused and resume when back to foreground
+                    Text(
+                        text = "Active for ${uiStateLifecycle.stepCount} Second",
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                    Log.d("Collecting Latest StepCount...", uiStateLifecycle.stepCount.toString())
+                }
             } else {
                 AnimatedContent(
                     targetState = uiState.notes,

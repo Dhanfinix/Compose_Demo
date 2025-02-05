@@ -17,7 +17,7 @@ import edts.android.composedemo.ui.screen.HomeScreen
 import edts.android.composedemo.ui.screen.SideEffectScreen
 import edts.android.composedemo.ui.screen.SimpleComponentScreen
 import edts.android.composedemo.ui.screen.SplashScreen
-import edts.android.composedemo.ui.screen.StateManagementScreen
+import edts.android.composedemo.ui.screen.state.StateManagementScreen
 import edts.android.composedemo.ui.screen.WhyComposeScreen
 import edts.android.composedemo.ui.screen.adv_state.AdvStateManagementScreen
 import edts.android.composedemo.ui.screen.theming.ThemingScreen
