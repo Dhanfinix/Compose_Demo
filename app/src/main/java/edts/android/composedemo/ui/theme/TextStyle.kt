@@ -45,7 +45,7 @@ fun FontFamily.headline3() =
         fontFamily = this,
         fontSize = 22.sp,
         fontWeight = FontWeight.SemiBold,
-        fontSynthesis = FontSynthesis.Weight,
+        fontSynthesis = FontSynthesis.Weight,   //enables the synthesis of bold text if a semi-bold version is not available.
         lineHeight = 30.sp,
     )
 

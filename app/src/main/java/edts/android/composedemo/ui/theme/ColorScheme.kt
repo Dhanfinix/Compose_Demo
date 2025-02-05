@@ -18,5 +18,11 @@ val LightColorScheme = lightColorScheme(
 val CustomColorScheme = lightColorScheme(
     primary = ColorPrimary50,
     secondary = ColorSecondary50,
-    tertiary = ColorRed50
+    background = ColorSupportBgAlert,
+    onBackground = ColorNeutral70,
+    surface = ColorNeutral10,
+    onSurface = ColorRed50,
+    surfaceContainer = ColorNeutral10,
+    secondaryContainer = ColorPrimary50,
+    onSecondaryContainer = ColorFFF
 )

@@ -39,9 +39,15 @@ fun ComposeDemoTheme(
 
     AndroidUtil.UpdateSystemBars(mode)
 
+    val typo = if (mode == ThemeMode.CUSTOM) {
+        TypographyAllMontserrat
+    } else {
+        Typography
+    }
+
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
+        typography = typo,
         content = content,
     )
 }
