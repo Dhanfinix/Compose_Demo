@@ -65,6 +65,7 @@ fun NavigationHost(modifier: Modifier = Modifier) {
              */
             composable<Destinations.AdvStateManagement> {backStackEntry->
                 AdvStateManagementScreen(
+                    initialNote = backStackEntry.toRoute<Destinations.AdvStateManagement>().initialNote,
                     deeplinkData = backStackEntry.toRoute<Destinations.AdvStateManagement>().data
                 )
             }

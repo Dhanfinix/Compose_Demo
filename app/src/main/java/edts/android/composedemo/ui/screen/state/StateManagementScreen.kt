@@ -170,7 +170,13 @@ fun StateManagementScreen(modifier: Modifier = Modifier) {
             item {
                 val navController = LocalNavController.current
                 Button(
-                    onClick = { navController.navigate(Destinations.AdvStateManagement(data = "Testing"))  },
+                    onClick = {
+                        navController.navigate(
+                            Destinations.AdvStateManagement(
+                                initialNote = "This is initial note passed from state management screen"
+                            )
+                        )
+                    },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Advance State with View Model")

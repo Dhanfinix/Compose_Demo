@@ -1,5 +1,6 @@
 package edts.android.composedemo.ui.screen
 
+import android.content.Context
 import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -15,6 +16,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -29,6 +31,7 @@ import edts.android.composedemo.constants.Destinations
 import edts.android.composedemo.constants.LocalActivity
 import edts.android.composedemo.constants.LocalNavController
 import edts.android.composedemo.constants.ThemeMode
+import edts.android.composedemo.utils.StringUtils.isValidDeeplink
 import edts.android.composedemo.utils.preview.PreviewWrapperComp
 import edts.android.composedemo.utils.preview.ThemePreviewProvider
 import kotlinx.coroutines.delay
@@ -40,14 +43,13 @@ fun SplashScreen(
     val navController = if (LocalInspectionMode.current)
         rememberNavController()
         else LocalNavController.current
+    val context = LocalContext.current
     val intent = if (LocalInspectionMode.current) Intent()
     else LocalActivity.current.intent
-    val schemes = stringResource(R.string.schemes)
-    val host = stringResource(R.string.host)
 
     LaunchedEffect(Unit) {
         delay(1500)
-        handleDeeplink(navController, intent, schemes, host)
+        handleDeeplink(navController, context, intent)
     }
     Surface(modifier.fillMaxSize()) {
         Column(
@@ -76,13 +78,12 @@ fun SplashScreen(
 
 private fun handleDeeplink(
     navController: NavController,
+    context: Context,
     intent: Intent,
-    schemes: String,
-    host: String
 ) {
     val defaultDestinations = Destinations.Home()
     navController.navigate(
-        if (intent.data?.scheme == schemes && intent.data?.host == host){
+        if (isValidDeeplink(context, intent.data)){
             when (intent.data?.path) {
                 DeeplinksPath.ADV_STATE -> {
                     val data = intent.data?.getQueryParameter("data") ?: ""

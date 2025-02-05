@@ -13,6 +13,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import edts.android.composedemo.constants.Destinations
 import edts.android.composedemo.constants.ThemeMode
+import edts.android.composedemo.constants.homeDestinations
 import edts.android.composedemo.ui.component.DemoScaffoldComp
 import edts.android.composedemo.ui.component.HomeButtonComp
 import edts.android.composedemo.utils.preview.PreviewWrapperComp
@@ -23,15 +24,6 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     navigateTo: (Destinations) -> Unit = {}
 ) {
-    val destinations = listOf(
-        Destinations.WhyCompose(),
-        Destinations.SimpleComponent(),
-        Destinations.ComposeModifier(),
-        Destinations.StateManagement(),
-        Destinations.SideEffect(),
-        Destinations.Theming(),
-        Destinations.Compatibility(),
-    )
     val context = LocalContext.current
     DemoScaffoldComp(
         modifier = modifier,
@@ -44,7 +36,7 @@ fun HomeScreen(
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp)
         ) {
-            items(destinations){
+            items(homeDestinations){
                 HomeButtonComp(text = it.title) {
                     try {
                         navigateTo(it)

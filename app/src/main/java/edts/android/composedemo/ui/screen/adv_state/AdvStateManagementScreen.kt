@@ -41,10 +41,14 @@ import edts.android.composedemo.utils.preview.ThemePreviewProvider
 fun AdvStateManagementScreen(
     modifier: Modifier = Modifier,
     viewModel: AdvStateManagementViewModel = viewModel(),
+    initialNote: String? = null,
     deeplinkData: String? = null
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val uiStateLifecycle by viewModel.uiState.collectAsStateWithLifecycle()
+    initialNote?.let {
+        viewModel.addNote(it)
+    }
     deeplinkData?.let {
         Toast.makeText(LocalContext.current, it, Toast.LENGTH_SHORT).show()
     }
