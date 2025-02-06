@@ -14,6 +14,7 @@ import edts.android.composedemo.constants.LocalNavController
 import edts.android.composedemo.ui.screen.CompatibilityScreen
 import edts.android.composedemo.ui.screen.ComposeModifierScreen
 import edts.android.composedemo.ui.screen.HomeScreen
+import edts.android.composedemo.ui.screen.RelayScreen
 import edts.android.composedemo.ui.screen.SideEffectScreen
 import edts.android.composedemo.ui.screen.SimpleComponentScreen
 import edts.android.composedemo.ui.screen.SplashScreen
@@ -80,6 +81,9 @@ fun NavigationHost(modifier: Modifier = Modifier) {
             }
             composable<Destinations.WhyCompose> {
                 WhyComposeScreen()
+            }
+            composable<Destinations.Relay> {
+                RelayScreen()
             }
         }
     }

@@ -61,4 +61,9 @@ sealed class Destinations {
     data class ComposeInView(
         override val title: String = "Compose in View"
     ): Destinations()
+
+    @Serializable
+    data class Relay(
+        override val title: String = "Relay"
+    ): Destinations()
 }

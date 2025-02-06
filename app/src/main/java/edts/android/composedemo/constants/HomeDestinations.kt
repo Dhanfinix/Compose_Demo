@@ -11,4 +11,5 @@ val homeDestinations = listOf(
     Destinations.SideEffect(),
     Destinations.Theming(),
     Destinations.Compatibility(),
+    Destinations.Relay()
 )
