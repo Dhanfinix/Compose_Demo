@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -16,6 +17,7 @@ import edts.android.composedemo.constants.ThemeMode
 import edts.android.composedemo.constants.homeDestinations
 import edts.android.composedemo.ui.component.DemoScaffoldComp
 import edts.android.composedemo.ui.component.HomeButtonComp
+import edts.android.composedemo.ui.modifier.conditional
 import edts.android.composedemo.utils.preview.PreviewWrapperComp
 import edts.android.composedemo.utils.preview.ThemePreviewProvider
 
@@ -36,8 +38,14 @@ fun HomeScreen(
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp)
         ) {
-            items(homeDestinations){
-                HomeButtonComp(text = it.title) {
+            itemsIndexed(homeDestinations){index, it->
+                HomeButtonComp(
+                    text = it.title,
+                    modifier = Modifier.conditional(
+                        condition = index == 0,
+                        ifTrue = { padding(top = 8.dp) }
+                    )
+                ) {
                     try {
                         navigateTo(it)
                     } catch (e: Exception) {
@@ -67,4 +75,10 @@ private fun HomePreview(
         themeMode = themeMode,
         content = { HomeScreen() }
     )
+}
+
+@Preview
+@Composable
+private fun HomeSinglePreview() {
+    HomeScreen()
 }
