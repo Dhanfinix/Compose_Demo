@@ -53,8 +53,8 @@ sealed class Destinations {
     ): Destinations()
 
     @Serializable
-    data class Compatibility(
-        override val title: String = "Compatibility"
+    data class Interoperability(
+        override val title: String = "Interoperability"
     ): Destinations()
 
     @Serializable

@@ -10,6 +10,6 @@ val homeDestinations = listOf(
     Destinations.StateManagement(),
     Destinations.SideEffect(),
     Destinations.Theming(),
-    Destinations.Compatibility(),
+    Destinations.Interoperability(),
     Destinations.Relay()
 )

@@ -76,7 +76,7 @@ fun NavigationHost(modifier: Modifier = Modifier) {
             composable<Destinations.Theming> {
                 ThemingScreen()
             }
-            composable<Destinations.Compatibility> {
+            composable<Destinations.Interoperability> {
                 CompatibilityScreen()
             }
             composable<Destinations.WhyCompose> {

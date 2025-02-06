@@ -53,7 +53,7 @@ fun CompatibilityScreen(
     var username by rememberSaveable { mutableStateOf("") }
     DemoScaffoldComp(
         modifier = modifier,
-        title = Destinations.Compatibility().title,
+        title = Destinations.Interoperability().title,
     ) {innerPadding ->
         LazyColumn(
             modifier = Modifier
