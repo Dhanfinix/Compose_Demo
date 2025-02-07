@@ -4,11 +4,17 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import edts.android.composedemo.databinding.ComposeInViewBinding
+import edts.android.composedemo.ui.component.CounterComp
 import edts.android.composedemo.utils.preview.PreviewWrapperComp
 
 /**
@@ -44,7 +50,11 @@ class ComposeInViewActivity : AppCompatActivity() {
             // is destroyed
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                ComposeGreeting()
+                Column {
+                    ComposeGreeting()
+                    Spacer(Modifier.height(8.dp))
+                    CounterComp()
+                }
                 // You can add more Compose composables here
             }
         }

@@ -43,7 +43,7 @@ import id.co.edtslib.edtsds.ratingview.RatingDelegate
 import id.co.edtslib.edtsds.ratingview.RatingView
 
 @Composable
-fun CompatibilityScreen(
+fun InteroperabilityScreen(
     modifier: Modifier = Modifier
 ) {
     val activity = if (LocalInspectionMode.current) null else LocalActivity.current
@@ -166,12 +166,12 @@ fun CompatibilityScreen(
 
 @Preview
 @Composable
-private fun CompatibilityPreview(
+private fun InteroperabilityPreview(
     @PreviewParameter(ThemePreviewProvider::class)
     themeMode: ThemeMode
 ) {
     PreviewWrapperComp(
         themeMode = themeMode,
-        content = { CompatibilityScreen() }
+        content = { InteroperabilityScreen() }
     )
 }
