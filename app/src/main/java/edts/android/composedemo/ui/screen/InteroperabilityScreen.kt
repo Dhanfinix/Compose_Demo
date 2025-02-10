@@ -90,8 +90,7 @@ fun InteroperabilityScreen(
                                 }
                             }
                         },
-                        update = {
-                            val btn = it.findViewById<ButtonView>(AppResource.id.btn_view)
+                        update = {btn->
                             btn.isEnabled = enableButton
                         }
                     )
@@ -116,8 +115,7 @@ fun InteroperabilityScreen(
                             }
                         }
                     },
-                    update = {
-                        val ratingView = it.findViewById<RatingView>(AppResource.id.rating_view)
+                    update = {ratingView->
                         selectedRating?.let {value->
                             ratingView.value = value
                         }
