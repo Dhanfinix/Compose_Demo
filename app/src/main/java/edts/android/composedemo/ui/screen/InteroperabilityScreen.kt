@@ -20,7 +20,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
@@ -46,7 +45,7 @@ import id.co.edtslib.edtsds.ratingview.RatingView
 fun InteroperabilityScreen(
     modifier: Modifier = Modifier
 ) {
-    val activity = if (LocalInspectionMode.current) null else LocalActivity.current
+    val activity = LocalActivity.current
     val context = LocalContext.current
     var selectedRating by rememberSaveable { mutableStateOf<Int?>(null) }
     var enableButton by rememberSaveable { mutableStateOf(false) }

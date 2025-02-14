@@ -12,20 +12,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import edts.android.composedemo.R
 import edts.android.composedemo.constants.DeeplinksPath
 import edts.android.composedemo.constants.Destinations
@@ -43,12 +39,13 @@ fun SplashScreen(
 ) {
     val navController = LocalNavController.current
     val context = LocalContext.current
-    val intent = if (LocalInspectionMode.current) Intent()
-    else LocalActivity.current.intent
+    val intent = LocalActivity.current?.intent
 
     LaunchedEffect(Unit) {
         delay(1500)
-        handleDeeplink(navController, context, intent)
+        if (intent != null) {
+            handleDeeplink(navController, context, intent)
+        }
     }
     Surface(modifier.fillMaxSize()) {
         Column(
@@ -152,16 +149,8 @@ private fun SplashPreview(
     @PreviewParameter(ThemePreviewProvider::class)
     themeMode: ThemeMode
 ) {
-    val navController =
-        if (LocalInspectionMode.current)
-            rememberNavController()
-        else LocalNavController.current
-    CompositionLocalProvider(
-        LocalNavController provides navController
-    ) {
-        PreviewWrapperComp(
-            themeMode = themeMode,
-            content = { SplashScreen() }
-        )
-    }
+    PreviewWrapperComp(
+        themeMode = themeMode,
+        content = { SplashScreen() }
+    )
 }

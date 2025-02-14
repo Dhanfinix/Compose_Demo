@@ -36,10 +36,7 @@ fun DemoScaffoldComp(
     handleBack: (NavController)->Unit = {it.navigateUp()},
     content: @Composable (PaddingValues)->Unit
 ) {
-    val navController =
-        if (LocalInspectionMode.current)
-            rememberNavController()
-        else LocalNavController.current
+    val navController = LocalNavController.current
     val scrollBehavior = exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
     // Add lifecycle tracker
