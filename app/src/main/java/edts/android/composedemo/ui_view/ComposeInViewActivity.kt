@@ -50,11 +50,7 @@ class ComposeInViewActivity : AppCompatActivity() {
             // is destroyed
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                Column {
-                    ComposeGreeting()
-                    Spacer(Modifier.height(8.dp))
-                    CounterComp()
-                }
+                ComposeGreeting()
                 // You can add more Compose composables here
             }
         }
@@ -62,7 +58,11 @@ class ComposeInViewActivity : AppCompatActivity() {
 }
 @Composable
 private fun ComposeGreeting() {
-    Text("Hello from Compose!")
+    Column {
+        Text("Hello from Compose!")
+        Spacer(Modifier.height(8.dp))
+        CounterComp()
+    }
 }
 
 @Preview
