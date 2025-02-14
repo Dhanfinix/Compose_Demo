@@ -15,3 +15,7 @@ val LocalActivity = compositionLocalOf<Activity> {
 val LocalTheme = compositionLocalOf<ThemeMode> {
     error("No Theme found!")
 }
+
+val LocalScreenName = compositionLocalOf {
+    "Empty Screen Name"
+}

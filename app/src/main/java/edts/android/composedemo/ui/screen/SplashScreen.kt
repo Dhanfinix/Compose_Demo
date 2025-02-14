@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,9 +41,7 @@ import kotlinx.coroutines.delay
 fun SplashScreen(
     modifier: Modifier = Modifier
 ) {
-    val navController = if (LocalInspectionMode.current)
-        rememberNavController()
-        else LocalNavController.current
+    val navController = LocalNavController.current
     val context = LocalContext.current
     val intent = if (LocalInspectionMode.current) Intent()
     else LocalActivity.current.intent
@@ -81,21 +80,68 @@ private fun handleDeeplink(
     context: Context,
     intent: Intent,
 ) {
-    val defaultDestinations = Destinations.Home()
-    navController.navigate(
-        if (isValidDeeplink(context, intent.data)){
-            when (intent.data?.path) {
-                DeeplinksPath.ADV_STATE -> {
-                    val data = intent.data?.getQueryParameter("data") ?: ""
-                    Destinations.AdvStateManagement(data = data)
-                }
+    /** because we directly navigate from SplashScreen, when we press back
+     * at destination it will back to SplashScreen and go to default destination
+     */
+//    navController.navigate(
+//        if (isValidDeeplink(context, intent.data)){
+//            when (intent.data?.path) {
+//                DeeplinksPath.ADV_STATE -> {
+//                    val data = intent.data?.getQueryParameter("data") ?: ""
+//                    Destinations.AdvStateManagement(data = data)
+//                }
+//
+//                else -> {defaultDestinations}
+//            }
+//        } else {defaultDestinations}
+//    ) {
+//        popUpTo(Destinations.Splash()) {
+//            inclusive = true
+//        }
+//    }
 
-                else -> {defaultDestinations}
-            }
-        } else {defaultDestinations}
-    ) {
+    /**
+     * Otherwise, this solution have chained destination which make
+     * the deeplink destination can back to correct previous destination
+     */
+    if (isValidDeeplink(context, intent.data)){
+        when (intent.data?.path) {
+            DeeplinksPath.ADV_STATE -> handleDeeplinkToAdvState(intent, navController)
+            else -> handleDefaultDestination(navController)
+        }
+    } else {
+        handleDefaultDestination(navController)
+    }
+
+}
+
+private fun handleDefaultDestination(
+    navController: NavController
+) {
+    val defaultDestinations = Destinations.Home()
+    navController.navigate(defaultDestinations) {
         popUpTo(Destinations.Splash()) {
             inclusive = true
+        }
+    }
+}
+
+private fun handleDeeplinkToAdvState(
+    intent: Intent,
+    navController: NavController
+) {
+    val data = intent.data?.getQueryParameter("data") ?: ""
+    val chainedDestination = listOf(
+        Destinations.Home(),
+        Destinations.StateManagement(),
+        Destinations.AdvStateManagement(data = data)
+    )
+    chainedDestination.forEachIndexed { index, destination ->
+        navController.navigate(destination) {
+            if (index == 0)
+                popUpTo(Destinations.Splash()) {
+                    inclusive = true
+                }
         }
     }
 }
@@ -106,8 +152,16 @@ private fun SplashPreview(
     @PreviewParameter(ThemePreviewProvider::class)
     themeMode: ThemeMode
 ) {
-    PreviewWrapperComp(
-        themeMode = themeMode,
-        content = { SplashScreen() }
-    )
+    val navController =
+        if (LocalInspectionMode.current)
+            rememberNavController()
+        else LocalNavController.current
+    CompositionLocalProvider(
+        LocalNavController provides navController
+    ) {
+        PreviewWrapperComp(
+            themeMode = themeMode,
+            content = { SplashScreen() }
+        )
+    }
 }

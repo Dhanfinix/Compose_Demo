@@ -15,11 +15,15 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults.exitUntilCollapsedScrollBehavior
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import edts.android.composedemo.constants.LocalNavController
+import edts.android.composedemo.constants.LocalScreenName
+import edts.android.composedemo.ui.component.side_effect.TrackLifecycle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,6 +33,7 @@ fun DemoScaffoldComp(
     isLargeTopAppBar: Boolean = false,
     enableBackNavigation: Boolean = !isLargeTopAppBar,
     fab: @Composable ()->Unit = {},
+    handleBack: (NavController)->Unit = {it.navigateUp()},
     content: @Composable (PaddingValues)->Unit
 ) {
     val navController =
@@ -36,6 +41,13 @@ fun DemoScaffoldComp(
             rememberNavController()
         else LocalNavController.current
     val scrollBehavior = exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+
+    // Add lifecycle tracker
+    CompositionLocalProvider(
+        LocalScreenName provides title
+    ) {
+        TrackLifecycle()
+    }
 
     // same as coordinator layout in view-based UI, it contain slot of view that can be used
     Scaffold(
@@ -55,7 +67,7 @@ fun DemoScaffoldComp(
                     navigationIcon = {
                         if (enableBackNavigation) {
                             IconButton(
-                                onClick = { navController.navigateUp() }
+                                onClick = { handleBack(navController) }
                             ) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -76,6 +88,7 @@ fun DemoScaffoldComp(
     BackHandler(
         enabled = enableBackNavigation
     ) {
-        navController.navigateUp()
+        handleBack(navController)
     }
 }
+
