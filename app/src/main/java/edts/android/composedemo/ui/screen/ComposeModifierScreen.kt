@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,10 +26,16 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.rememberNavController
 import edts.android.composedemo.constants.Destinations
+import edts.android.composedemo.constants.LocalNavController
+import edts.android.composedemo.constants.LocalTheme
 import edts.android.composedemo.constants.ThemeMode
 import edts.android.composedemo.ui.component.DemoScaffoldComp
+import edts.android.composedemo.ui.theme.ComposeDemoTheme
+import edts.android.composedemo.utils.preview.LightDarkPreview
 import edts.android.composedemo.utils.preview.PreviewWrapperComp
+import edts.android.composedemo.utils.preview.ScreenSizePreview
 import edts.android.composedemo.utils.preview.ThemePreviewProvider
 
 /**
@@ -146,14 +153,38 @@ fun ComposeModifierScreen(
     }
 }
 
-@Preview
+//@Preview
+//@Composable
+//private fun ComposeModifierPreview(
+//    @PreviewParameter(ThemePreviewProvider::class)
+//    themeMode: ThemeMode
+//) {
+//    PreviewWrapperComp(
+//        themeMode = themeMode,
+//        content = { ComposeModifierScreen() }
+//    )
+//}
+
+//@ScreenSizePreview
+//@Composable
+//private fun Size(){
+//    CompositionLocalProvider(
+//        LocalNavController provides rememberNavController()
+//    ) {
+//        ComposeDemoTheme {
+//            ComposeModifierScreen()
+//        }
+//    }
+//}
+
+@LightDarkPreview
 @Composable
-private fun ComposeModifierPreview(
-    @PreviewParameter(ThemePreviewProvider::class)
-    themeMode: ThemeMode
-) {
-    PreviewWrapperComp(
-        themeMode = themeMode,
-        content = { ComposeModifierScreen() }
-    )
+private fun LightDarkPreview(){
+    CompositionLocalProvider(
+        LocalNavController provides rememberNavController(),
+    ) {
+        ComposeDemoTheme {
+            ComposeModifierScreen()
+        }
+    }
 }
