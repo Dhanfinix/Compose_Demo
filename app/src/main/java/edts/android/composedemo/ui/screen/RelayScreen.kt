@@ -34,6 +34,7 @@ import edts.android.composedemo.utils.preview.ThemePreviewProvider
  * @see<a href=https://developer.android.com/develop/ui/compose/tooling/relay/convert-designs-android-studio>Relay Documentation</a>
  */
 
+@Deprecated("Relay Plugin will sunset at 30 April 2025")
 @Composable
 fun RelayScreen(
     modifier: Modifier = Modifier

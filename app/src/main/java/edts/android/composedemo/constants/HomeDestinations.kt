@@ -11,5 +11,5 @@ val homeDestinations = listOf(
     Destinations.SideEffect(),
     Destinations.Theming(),
     Destinations.Interoperability(),
-    Destinations.Relay()
+    //Destinations.Relay() - Relay plugin will sunset at 30 April 2025
 )
