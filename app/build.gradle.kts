@@ -6,7 +6,6 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.serialization)
     alias(libs.plugins.dagger.hilt)
-    alias(libs.plugins.relay)
     kotlin("kapt")
 }
 
