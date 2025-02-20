@@ -48,7 +48,7 @@ The app includes multiple screens showcasing different Jetpack Compose concepts:
 ### Installation
 1. Clone the repository:
    ```sh
-   git clone https://github.com/yourusername/ComposeDemo.git
+   git clone https://github.com/Dhanfinix/Compose_Demo.git
    ```
 2. Open the project in **Android Studio**.
 3. Sync Gradle and build the project.
