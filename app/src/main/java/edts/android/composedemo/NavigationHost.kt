@@ -22,6 +22,7 @@ import edts.android.composedemo.ui.screen.SplashScreen
 import edts.android.composedemo.ui.screen.state.StateManagementScreen
 import edts.android.composedemo.ui.screen.WhyComposeScreen
 import edts.android.composedemo.ui.screen.adv_state.AdvStateManagementScreen
+import edts.android.composedemo.ui.screen.api_demo.ApiDemoScreen
 import edts.android.composedemo.ui.screen.theming.ThemingScreen
 
 @Composable
@@ -86,6 +87,9 @@ fun NavigationHost(modifier: Modifier = Modifier) {
                 }
                 composable<Destinations.Relay> {
                     RelayScreen()
+                }
+                composable<Destinations.ApiDemo> {
+                    ApiDemoScreen()
                 }
             } catch (e: IllegalArgumentException){
                 Toast.makeText(navController.context, "Destination Not Exist", Toast.LENGTH_SHORT).show()

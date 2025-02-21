@@ -26,7 +26,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import edts.android.composedemo.constants.Destinations
 import edts.android.composedemo.constants.LocalNavController
 import edts.android.composedemo.constants.ThemeMode
-import edts.android.composedemo.data.LoginData
+import edts.android.composedemo.domain.model.LoginData
 import edts.android.composedemo.ui.component.CounterComp
 import edts.android.composedemo.ui.component.DemoScaffoldComp
 import edts.android.composedemo.ui.component.DemoTextInputComp

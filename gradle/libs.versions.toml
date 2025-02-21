@@ -18,6 +18,9 @@ hilt-nav = "1.2.0"
 datastore = "1.1.1"
 edts-ds = "1.3.18"
 view-material = "1.9.0"
+retrofit = "2.9.0"
+okhttp = "4.9.0"
+google-secret = "2.0.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -46,6 +49,9 @@ datastore = { group = "androidx.datastore", name = "datastore-preferences", vers
 edts-ds = { group = "com.github.edtslib", name = "edtsds", version.ref = "edts-ds"}
 view-material = { group = "com.google.android.material", name = "material", version.ref = "view-material"}
 compose-view-binding = { group = "androidx.compose.ui", name = "ui-viewbinding" }
+retrofit = {group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit"}
+retrofit-gson = {group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit"}
+okhttp = {group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -53,3 +59,4 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "plugin-serialization" }
 dagger-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt"}
+google-secret = { id = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", version.ref = "google-secret"}

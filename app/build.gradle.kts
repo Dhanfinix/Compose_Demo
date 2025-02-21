@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.serialization)
     alias(libs.plugins.dagger.hilt)
+    alias(libs.plugins.google.secret)
     kotlin("kapt")
 }
 
@@ -21,6 +22,8 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "BASE_URL", "\"https://api.finlight.me\"")
     }
 
     signingConfigs {
@@ -56,6 +59,7 @@ android {
     buildFeatures {
         compose = true
         viewBinding = true
+        buildConfig = true
     }
 }
 
@@ -104,4 +108,9 @@ dependencies {
 
     // ViewBinding in compose
     implementation(libs.compose.view.binding)
+
+    // network
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
+    implementation(libs.okhttp)
 }

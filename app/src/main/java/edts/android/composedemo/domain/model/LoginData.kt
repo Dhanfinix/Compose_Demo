@@ -1,4 +1,4 @@
-package edts.android.composedemo.data
+package edts.android.composedemo.domain.model
 
 import java.io.Serializable
 

@@ -66,4 +66,9 @@ sealed class Destinations {
     data class Relay(
         override val title: String = "Relay"
     ): Destinations()
+
+    @Serializable
+    data class ApiDemo(
+        override val title: String = "Api Call"
+    ): Destinations()
 }

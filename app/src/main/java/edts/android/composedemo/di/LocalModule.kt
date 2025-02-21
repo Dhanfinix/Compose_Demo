@@ -6,6 +6,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import edts.android.composedemo.data.local.DemoLocalDataSource
 import edts.android.composedemo.data.local.SettingsLocalStorage
 import javax.inject.Singleton
 
@@ -16,4 +17,9 @@ object LocalModule {
     @Singleton
     fun provideSettingsLocalStorage(@ApplicationContext context: Context) =
         SettingsLocalStorage(context)
+
+    @Provides
+    @Singleton
+    fun provideDemoApiLocalStorage(@ApplicationContext context: Context) =
+        DemoLocalDataSource(context)
 }
