@@ -26,6 +26,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import edts.android.composedemo.constants.Destinations
 import edts.android.composedemo.constants.LocalTheme
 import edts.android.composedemo.constants.ThemeMode
+import edts.android.composedemo.domain.usecase.DummySettingsInteractor
 import edts.android.composedemo.ui.component.DemoScaffoldComp
 import edts.android.composedemo.ui.component.segment_button.SegmentedButtonComp
 import edts.android.composedemo.ui.theme.ColorFFF
@@ -138,7 +139,7 @@ private fun ThemingPreview(
         themeMode = themeMode,
         content = {
             ThemingScreen(
-                viewModel = ThemingViewModel(null)
+                viewModel = ThemingViewModel(DummySettingsInteractor())
             )
         }
     )

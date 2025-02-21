@@ -5,17 +5,16 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import edts.android.composedemo.constants.ThemeMode
 import edts.android.composedemo.data.local.SettingsLocalStorage
+import edts.android.composedemo.domain.usecase.SettingsUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-//TODO: Change to call use case
-
 @HiltViewModel
 class ThemingViewModel @Inject constructor(
-    private val localStorage: SettingsLocalStorage?,
+    private val settingsUseCase: SettingsUseCase
 ): ViewModel() {
     private val _uiState = MutableStateFlow(ThemingScreenState())
     val uiState : StateFlow<ThemingScreenState>
@@ -32,7 +31,7 @@ class ThemingViewModel @Inject constructor(
     }
     fun changeTheme(themeMode: ThemeMode) {
         viewModelScope.launch {
-            localStorage?.saveThemeMode(themeMode)
+            settingsUseCase.saveTheme(themeMode)
         }
     }
 }
