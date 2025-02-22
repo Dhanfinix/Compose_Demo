@@ -55,6 +55,4 @@ abstract class BaseDataSource {
             Result.error("Exception", e.message ?: "An unknown error occurred", null)
         }
     }
-
-
 }
