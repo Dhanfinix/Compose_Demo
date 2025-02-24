@@ -38,6 +38,8 @@ The app includes multiple screens showcasing different Jetpack Compose concepts:
 - **Single Activity Pattern**: The app follows the **Single Activity Architecture**, where all screens are managed using **Jetpack Compose Navigation**.
 - **Jetpack Compose Navigation**: Used for navigating between different screens efficiently.
 - **MVVM Architecture**: ViewModels are utilized to manage UI state and business logic.
+- **Compose** UI Components: Located in edts.android.composedemo.ui package.
+- **View-based** UI Components: Located in edts.android.composedemo.ui_view package.
 
 ## Tech Stack
 - **Jetpack Compose** (UI)
