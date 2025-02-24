@@ -33,7 +33,11 @@ The app includes multiple screens showcasing different Jetpack Compose concepts:
 8. **Interoperability**  
    - Embedding Views inside Compose (`AndroidView`).
    - Using Compose inside View (`ComposeView`).
-
+  
+9. **Api Call**
+   - Demonstrate how to handle api response
+   - Shimmer modifier + Swipe to refresh
+     
 ## Architecture
 - **Single Activity Pattern**: The app follows the **Single Activity Architecture**, where all screens are managed using **Jetpack Compose Navigation**.
 - **Jetpack Compose Navigation**: Used for navigating between different screens efficiently.
