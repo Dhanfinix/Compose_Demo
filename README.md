@@ -48,7 +48,7 @@ The app includes multiple screens showcasing different Jetpack Compose concepts:
 ## Tech Stack
 - **Jetpack Compose** (UI)
 - **Compose Navigation** (Screen transitions)
-- **ViewModel & LiveData** (State management)
+- **ViewModel & StateFlow** (State management)
 - **Material3** (Modern UI components & theming)
 
 ### Installation
