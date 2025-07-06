@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -29,6 +31,7 @@ import edts.android.composedemo.MainActivity
 import edts.android.composedemo.constants.Destinations
 import edts.android.composedemo.overlay.OverlayService
 import edts.android.composedemo.ui.component.DemoScaffoldComp
+import edts.android.composedemo.utils.AndroidUtil
 
 @Composable
 fun OverlayScreen(
@@ -43,6 +46,9 @@ fun OverlayScreen(
     var overlayActive by remember {
         mutableStateOf(false)
     }
+    var hasAccessibilityPermission by remember {
+        mutableStateOf(AndroidUtil.getAccessibilityEnabled(context))
+    }
 
     DemoScaffoldComp(
         modifier = modifier,
@@ -54,10 +60,32 @@ fun OverlayScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
+                text = "Accessibility Permission: ${if (hasAccessibilityPermission) "Granted" else "Not Granted"}"
+            )
+            Spacer(Modifier.height(6.dp))
+            Button(
+                enabled = !hasAccessibilityPermission,
+                onClick = {
+                    val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                    context.startActivity(intent)
+                }
+            ){
+                Text(
+                    text = if(!hasAccessibilityPermission)
+                        "Grant accessibility permission"
+                    else
+                        "Accessibility permission granted"
+                )
+            }
+
+            HorizontalDivider(Modifier.padding(vertical = 8.dp))
+
+            Text(
                 text = "Overlay Permission: ${if (hasOverlayPermissions) "Granted" else "Not Granted"}"
             )
             Spacer(Modifier.height(6.dp))
             Button(
+                enabled = hasAccessibilityPermission,
                 onClick = {
                     if (hasOverlayPermissions){
                         if (overlayActive){
@@ -68,10 +96,7 @@ fun OverlayScreen(
                             overlayActive = true
                         }
                     } else {
-                        val intent = Intent(
-                            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                            null
-                        )
+                        val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
                         activity.startActivity(intent)
                     }
                 }
@@ -91,7 +116,8 @@ fun OverlayScreen(
     LaunchedEffect(Unit) {
         snapshotFlow { activity.lifecycle.currentState }
             .collect {
-                hasOverlayPermissions = Settings.canDrawOverlays(activity)
+                hasOverlayPermissions = Settings.canDrawOverlays(context)
+                hasAccessibilityPermission = AndroidUtil.getAccessibilityEnabled(context)
             }
     }
 
