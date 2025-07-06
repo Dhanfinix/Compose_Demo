@@ -71,4 +71,9 @@ sealed class Destinations {
     data class ApiDemo(
         override val title: String = "Api Call"
     ): Destinations()
+
+    @Serializable
+    data class Overlay(
+        override val title: String = "Overlay"
+    ): Destinations()
 }

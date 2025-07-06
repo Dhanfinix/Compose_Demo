@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
+    <!-- Needed for TYPE_APPLICATION_OVERLAY -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
     <application
         android:name=".App"
         android:allowBackup="true"
@@ -43,7 +44,10 @@
             android:exported="false"
             android:theme="@style/Theme.ViewActivity">
         </activity>
-
+        <!-- foreground=false is OK because we’re adding a View, not binding -->
+        <service
+            android:name=".overlay.OverlayService"
+            android:exported="false"/>
     </application>
 
 </manifest>

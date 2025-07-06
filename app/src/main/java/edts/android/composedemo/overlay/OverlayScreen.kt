@@ -1,0 +1,91 @@
+package edts.android.composedemo.overlay
+
+import android.content.Intent
+import android.provider.Settings
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import edts.android.composedemo.MainActivity
+import edts.android.composedemo.constants.Destinations
+import edts.android.composedemo.ui.component.DemoScaffoldComp
+
+@Composable
+fun OverlayScreen(
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    val activity = context as MainActivity
+    var hasOverlayPermissions by remember {
+        mutableStateOf(Settings.canDrawOverlays(context))
+    }
+    val overlayIntent by lazy { Intent(activity, OverlayService::class.java) }
+    var overlayActive by remember {
+        mutableStateOf(false)
+    }
+
+    DemoScaffoldComp(
+        modifier = modifier,
+        title = Destinations.Overlay().title
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = "Overlay Permission: ${if (hasOverlayPermissions) "Granted" else "Not Granted"}"
+            )
+            Spacer(Modifier.height(6.dp))
+            Button(
+                onClick = {
+                    if (hasOverlayPermissions){
+                        if (overlayActive){
+                            activity.stopService(overlayIntent)
+                            overlayActive = false
+                        } else {
+                            activity.startService(overlayIntent)
+                            overlayActive = true
+                        }
+                    } else {
+                        val intent = Intent(
+                            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                            null
+                        )
+                        activity.startActivity(intent)
+                    }
+                }
+            ) {
+                Text(
+                    text = when {
+                        !hasOverlayPermissions -> "Grant overlay permission"
+                        overlayActive  -> "Hide overlay"
+                        else           -> "Show overlay"
+                    }
+                )
+            }
+        }
+    }
+
+    // Refresh status when we resume from Settings screen
+    LaunchedEffect(Unit) {
+        snapshotFlow { activity.lifecycle.currentState }
+            .collect {
+                hasOverlayPermissions = Settings.canDrawOverlays(activity)
+            }
+    }
+}
