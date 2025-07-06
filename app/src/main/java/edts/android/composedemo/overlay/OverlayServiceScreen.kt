@@ -37,10 +37,18 @@ fun OverlayServiceScreen(
     modifier: Modifier = Modifier,
     delegate: OverlayServiceDelegate
 ) {
-    ComposeDemoTheme {
-        var sheetVisible by remember { mutableStateOf(true) }
-        val scope = rememberCoroutineScope()
+    var sheetVisible by remember { mutableStateOf(true) }
+    val scope = rememberCoroutineScope()
 
+    fun doClose(){
+        scope.launch {
+            sheetVisible = false
+            delay(100)
+            delegate.doStopSelf()
+        }
+    }
+
+    ComposeDemoTheme {
         Box(
             modifier = modifier
                 .fillMaxSize()
@@ -52,9 +60,7 @@ fun OverlayServiceScreen(
                     Modifier
                         .fillMaxSize()
                         .background(ColorSemitransparent) // semi-transparent black
-                        .clickable {
-                            delegate.doStopSelf()
-                        }
+                        .clickable { doClose() }
                 )
             }
 
@@ -86,11 +92,7 @@ fun OverlayServiceScreen(
                         Text("This layout dims the background without covering other apps.")
                         Spacer(Modifier.height(24.dp))
                         Button(onClick = {
-                            scope.launch {
-                                sheetVisible = false
-                                delay(100)
-                                delegate.doStopSelf()
-                            }
+                            doClose()
                         }) {
                             Text("Close Overlay")
                         }
