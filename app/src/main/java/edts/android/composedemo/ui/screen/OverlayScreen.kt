@@ -1,6 +1,9 @@
-package edts.android.composedemo.overlay
+package edts.android.composedemo.ui.screen
 
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.provider.Settings
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,8 +24,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import edts.android.composedemo.MainActivity
 import edts.android.composedemo.constants.Destinations
+import edts.android.composedemo.overlay.OverlayService
 import edts.android.composedemo.ui.component.DemoScaffoldComp
 
 @Composable
@@ -88,4 +94,27 @@ fun OverlayScreen(
                 hasOverlayPermissions = Settings.canDrawOverlays(activity)
             }
     }
+
+    DisposableEffect(Unit) {
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                if (intent?.action == OverlayService.OVERLAY_STOP_INTENT) {
+                    overlayActive = false
+                }
+            }
+        }
+
+        val filter = IntentFilter(OverlayService.OVERLAY_STOP_INTENT)
+        ContextCompat.registerReceiver(
+            activity,
+            receiver,
+            filter,
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
+
+        onDispose {
+            activity.unregisterReceiver(receiver)
+        }
+    }
+
 }

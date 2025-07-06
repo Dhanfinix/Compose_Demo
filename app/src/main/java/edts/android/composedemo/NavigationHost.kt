@@ -12,7 +12,7 @@ import androidx.navigation.navDeepLink
 import androidx.navigation.toRoute
 import edts.android.composedemo.constants.Destinations
 import edts.android.composedemo.constants.LocalNavController
-import edts.android.composedemo.overlay.OverlayScreen
+import edts.android.composedemo.ui.screen.OverlayScreen
 import edts.android.composedemo.ui.screen.InteroperabilityScreen
 import edts.android.composedemo.ui.screen.ComposeModifierScreen
 import edts.android.composedemo.ui.screen.HomeScreen
