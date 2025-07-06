@@ -100,4 +100,7 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.retrofit.gson)
     implementation(libs.okhttp)
+
+    // lifecycle-service
+    implementation(libs.lifecycle.service)
 }

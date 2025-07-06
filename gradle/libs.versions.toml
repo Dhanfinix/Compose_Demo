@@ -21,6 +21,7 @@ view-material = "1.9.0"
 retrofit = "2.9.0"
 okhttp = "4.9.0"
 google-secret = "2.0.1"
+lifecycle-service = "2.9.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -52,6 +53,7 @@ compose-view-binding = { group = "androidx.compose.ui", name = "ui-viewbinding" 
 retrofit = {group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit"}
 retrofit-gson = {group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit"}
 okhttp = {group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp"}
+lifecycle-service = { group = "androidx.lifecycle", name = "lifecycle-service", version.ref = "lifecycle-service" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
