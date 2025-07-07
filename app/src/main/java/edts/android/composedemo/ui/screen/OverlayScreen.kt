@@ -65,7 +65,7 @@ fun OverlayScreen(
     }
     val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
     val packageName = context.packageName
-    val isIgnoringBatteryOptimizations = remember {
+    var isIgnoringBatteryOptimizations by remember {
         mutableStateOf(pm.isIgnoringBatteryOptimizations(packageName))
     }
 
@@ -124,12 +124,13 @@ fun OverlayScreen(
 
             Text(
                 text = "Battery Optimization: ${
-                    if (isIgnoringBatteryOptimizations.value) "Disabled (Good)" else "Enabled (May interfere)"
+                    if (isIgnoringBatteryOptimizations) "Disabled (Good)" else "Enabled (May interfere)"
                 }",
                 textAlign = TextAlign.Center
             )
             Spacer(Modifier.height(6.dp))
             Button(
+                enabled = !isIgnoringBatteryOptimizations,
                 onClick = {
                     try {
                         val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
@@ -140,7 +141,7 @@ fun OverlayScreen(
                 }
             ) {
                 Text(
-                    text = if (isIgnoringBatteryOptimizations.value)
+                    text = if (isIgnoringBatteryOptimizations)
                         "Battery optimization already disabled"
                     else
                         "Disable Battery Restriction"
@@ -188,7 +189,7 @@ fun OverlayScreen(
             if (event == Lifecycle.Event.ON_RESUME) {
                 hasOverlayPermissions = Settings.canDrawOverlays(context)
                 hasAccessibilityPermission = AndroidUtil.getAccessibilityEnabled(context)
-                isIgnoringBatteryOptimizations.value = pm.isIgnoringBatteryOptimizations(packageName)
+                isIgnoringBatteryOptimizations = pm.isIgnoringBatteryOptimizations(packageName)
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
