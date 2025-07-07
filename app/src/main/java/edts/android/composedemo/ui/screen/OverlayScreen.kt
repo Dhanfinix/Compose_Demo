@@ -38,6 +38,8 @@ import edts.android.composedemo.overlay.OverlayService
 import edts.android.composedemo.ui.component.DemoScaffoldComp
 import edts.android.composedemo.utils.AndroidUtil
 import edts.android.composedemo.utils.AndroidUtil.getAutostartIntent
+import android.os.PowerManager
+import android.net.Uri
 
 /**
  * OverlayScreen handles UI for enabling system permissions required to display overlay features:
@@ -60,6 +62,11 @@ fun OverlayScreen(
     }
     var hasAccessibilityPermission by remember {
         mutableStateOf(AndroidUtil.getAccessibilityEnabled(context))
+    }
+    val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+    val packageName = context.packageName
+    val isIgnoringBatteryOptimizations = remember {
+        mutableStateOf(pm.isIgnoringBatteryOptimizations(packageName))
     }
 
     DemoScaffoldComp(
@@ -116,6 +123,33 @@ fun OverlayScreen(
             HorizontalDivider(Modifier.padding(vertical = 8.dp))
 
             Text(
+                text = "Battery Optimization: ${
+                    if (isIgnoringBatteryOptimizations.value) "Disabled (Good)" else "Enabled (May interfere)"
+                }",
+                textAlign = TextAlign.Center
+            )
+            Spacer(Modifier.height(6.dp))
+            Button(
+                onClick = {
+                    try {
+                        val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+                        context.startActivity(intent)
+                    } catch (e: Exception) {
+                        Toast.makeText(context, "Battery optimization setting not available", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            ) {
+                Text(
+                    text = if (isIgnoringBatteryOptimizations.value)
+                        "Battery optimization already disabled"
+                    else
+                        "Disable Battery Restriction"
+                )
+            }
+
+            HorizontalDivider(Modifier.padding(vertical = 8.dp))
+
+            Text(
                 text = "Overlay Permission: ${if (hasOverlayPermissions) "Granted" else "Not Granted"}"
             )
             Spacer(Modifier.height(6.dp))
@@ -154,6 +188,7 @@ fun OverlayScreen(
             if (event == Lifecycle.Event.ON_RESUME) {
                 hasOverlayPermissions = Settings.canDrawOverlays(context)
                 hasAccessibilityPermission = AndroidUtil.getAccessibilityEnabled(context)
+                isIgnoringBatteryOptimizations.value = pm.isIgnoringBatteryOptimizations(packageName)
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
