@@ -49,13 +49,20 @@ class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegist
 
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.WRAP_CONTENT,
+            WindowManager.LayoutParams.MATCH_PARENT,
             overlayType,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                    WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS,
             PixelFormat.TRANSLUCENT
         ).apply {
-            gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+            gravity = Gravity.TOP or Gravity.START
+            // For edge-to-edge, ensure we cover system bars
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+            }
         }
 
         val notification = createOverlayNotification()
@@ -66,6 +73,14 @@ class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegist
             setViewTreeLifecycleOwner(this@OverlayService)
             setViewTreeViewModelStoreOwner(this@OverlayService)
             setViewTreeSavedStateRegistryOwner(this@OverlayService)
+
+            // Enable edge-to-edge for the ComposeView
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                setOnApplyWindowInsetsListener { view, insets ->
+                    view.setPadding(0, 0, 0, 0)
+                    insets
+                }
+            }
 
             setContent {
                 OverlayServiceScreen(
