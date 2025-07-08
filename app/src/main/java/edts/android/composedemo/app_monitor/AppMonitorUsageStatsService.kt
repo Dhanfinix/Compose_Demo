@@ -32,6 +32,11 @@ class AppMonitorUsageStatsService : Service() {
         "com.bca"
     )
 
+    override fun onCreate() {
+        super.onCreate()
+        AppMonitorStatus.markRunning()
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_STOP_MONITOR) {
             monitoringJob?.cancel()
@@ -95,6 +100,7 @@ class AppMonitorUsageStatsService : Service() {
 
     override fun onDestroy() {
         monitoringJob?.cancel()
+        AppMonitorStatus.markStopped()
         super.onDestroy()
     }
 

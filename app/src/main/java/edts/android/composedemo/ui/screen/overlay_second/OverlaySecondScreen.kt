@@ -17,9 +17,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,6 +32,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import edts.android.composedemo.MainActivity
+import edts.android.composedemo.app_monitor.AppMonitorStatus
 import edts.android.composedemo.app_monitor.AppMonitorUsageStatsService
 import edts.android.composedemo.constants.Destinations
 import edts.android.composedemo.ui.component.DemoScaffoldComp
@@ -47,9 +50,8 @@ fun OverlaySecondScreen(
         mutableStateOf(Settings.canDrawOverlays(activity))
     }
     val appMonitorIntent by lazy { Intent(activity, AppMonitorUsageStatsService::class.java) }
-    var appMonitorActive by remember {
-        mutableStateOf(false)
-    }
+    val isAppMonitorRunning by AppMonitorStatus.isRunning.collectAsState()
+
     DemoScaffoldComp(
         modifier = modifier,
         title = Destinations.OverlaySecond().title
@@ -81,12 +83,10 @@ fun OverlaySecondScreen(
                 enabled = hasPermission,
                 onClick = {
                     if (hasOverlayPermissions){
-                        if (appMonitorActive){
+                        if (isAppMonitorRunning) {
                             activity.stopService(appMonitorIntent)
-                            appMonitorActive = false
                         } else {
                             activity.startService(appMonitorIntent)
-                            appMonitorActive = true
                         }
                     } else {
                         val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
@@ -97,7 +97,7 @@ fun OverlaySecondScreen(
                 Text(
                     text = when {
                         !hasOverlayPermissions -> "Grant overlay permission"
-                        appMonitorActive  -> "Stop App Monitor service"
+                        isAppMonitorRunning  -> "Stop App Monitor service"
                         else           -> "Start App Monitor service"
                     }
                 )
@@ -120,28 +120,6 @@ fun OverlaySecondScreen(
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
-        }
-    }
-
-    DisposableEffect(Unit) {
-        val receiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-                if (intent?.action == OverlayService.OVERLAY_STOP_INTENT) {
-                    appMonitorActive = false
-                }
-            }
-        }
-
-        val filter = IntentFilter(OverlayService.OVERLAY_STOP_INTENT)
-        ContextCompat.registerReceiver(
-            activity,
-            receiver,
-            filter,
-            ContextCompat.RECEIVER_NOT_EXPORTED
-        )
-
-        onDispose {
-            activity.unregisterReceiver(receiver)
         }
     }
 }
