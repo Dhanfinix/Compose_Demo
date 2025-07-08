@@ -7,6 +7,7 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
@@ -30,7 +31,8 @@ class AppMonitorUsageStatsService : Service() {
         "ovo.id",
         "mypoin.indomaret.android",
         "com.bca",
-        "id.co.bri.brimo"
+        "id.co.bri.brimo",
+        "com.android.chrome"
     )
 
     override fun onCreate() {
@@ -47,7 +49,18 @@ class AppMonitorUsageStatsService : Service() {
 
         val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
         val notification = createAppMonitorNotification()
-        startForeground(NOTIFICATION_MONITOR_ID, notification)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            startForeground(
+                NOTIFICATION_MONITOR_ID,
+                notification,
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+            )
+        } else {
+            startForeground(
+                NOTIFICATION_MONITOR_ID,
+                notification
+            )
+        }
 
         var lastValidApp: String? = null
         var inTarget = false

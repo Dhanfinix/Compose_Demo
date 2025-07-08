@@ -9,7 +9,7 @@
         android:name="android.permission.PACKAGE_USAGE_STATS"
         tools:ignore="ProtectedPermissions"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
     <application
@@ -55,7 +55,7 @@
         <service
             android:name=".ui.screen.overlay.OverlayService"
             android:exported="false"
-            android:foregroundServiceType="mediaProjection"/>
+            android:foregroundServiceType="specialUse"/>
         <service
             android:name=".app_monitor.AppMonitorAccessibilityService"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
@@ -70,6 +70,7 @@
 
         <service
             android:name=".app_monitor.AppMonitorUsageStatsService"
+            android:foregroundServiceType="specialUse"
             android:exported="false" />
     </application>
 
