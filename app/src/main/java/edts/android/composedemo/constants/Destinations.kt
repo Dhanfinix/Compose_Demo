@@ -74,11 +74,11 @@ sealed class Destinations {
 
     @Serializable
     data class Overlay(
-        override val title: String = "Overlay"
+        override val title: String = "Overlay with Accessibility"
     ): Destinations()
 
     @Serializable
     data class OverlaySecond(
-        override val title: String = "Overlay Second"
+        override val title: String = "Overlay with Usage Access"
     ): Destinations()
 }
