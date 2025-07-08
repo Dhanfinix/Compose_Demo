@@ -29,7 +29,8 @@ class AppMonitorUsageStatsService : Service() {
         "com.gojek.gopay",
         "ovo.id",
         "mypoin.indomaret.android",
-        "com.bca"
+        "com.bca",
+        "id.co.bri.brimo"
     )
 
     override fun onCreate() {
