@@ -12,10 +12,11 @@ import androidx.navigation.navDeepLink
 import androidx.navigation.toRoute
 import edts.android.composedemo.constants.Destinations
 import edts.android.composedemo.constants.LocalNavController
-import edts.android.composedemo.ui.screen.OverlayScreen
+import edts.android.composedemo.ui.screen.overlay.OverlayScreen
 import edts.android.composedemo.ui.screen.InteroperabilityScreen
 import edts.android.composedemo.ui.screen.ComposeModifierScreen
 import edts.android.composedemo.ui.screen.HomeScreen
+import edts.android.composedemo.ui.screen.overlay_second.OverlaySecondScreen
 import edts.android.composedemo.ui.screen.RelayScreen
 import edts.android.composedemo.ui.screen.SideEffectScreen
 import edts.android.composedemo.ui.screen.SimpleComponentScreen
@@ -94,6 +95,9 @@ fun NavigationHost(modifier: Modifier = Modifier) {
                 }
                 composable<Destinations.Overlay> {
                     OverlayScreen()
+                }
+                composable<Destinations.OverlaySecond> {
+                    OverlaySecondScreen()
                 }
             } catch (e: IllegalArgumentException){
                 Toast.makeText(navController.context, "Destination Not Exist", Toast.LENGTH_SHORT).show()

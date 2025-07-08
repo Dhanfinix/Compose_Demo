@@ -13,5 +13,6 @@ val homeDestinations = listOf(
     Destinations.Interoperability(),
     //Destinations.Relay() - Relay plugin will sunset at 30 April 2025
     Destinations.ApiDemo(),
-    Destinations.Overlay()
+    Destinations.Overlay(),
+    Destinations.OverlaySecond()
 )

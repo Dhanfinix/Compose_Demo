@@ -3,12 +3,12 @@ package edts.android.composedemo.app_monitor
 import android.accessibilityservice.AccessibilityService
 import android.content.Intent
 import android.view.accessibility.AccessibilityEvent
-import edts.android.composedemo.overlay.OverlayService
+import edts.android.composedemo.ui.screen.overlay.OverlayService
 
 /**
  * Monitors app transitions to trigger an overlay when a target app is freshly opened.
  */
-class AppMonitorService : AccessibilityService() {
+class AppMonitorAccessibilityService : AccessibilityService() {
 
     private val targetPackages = setOf(
         "com.gojek.gopay",

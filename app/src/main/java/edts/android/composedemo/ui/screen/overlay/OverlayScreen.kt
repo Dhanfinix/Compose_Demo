@@ -1,4 +1,4 @@
-package edts.android.composedemo.ui.screen
+package edts.android.composedemo.ui.screen.overlay
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -17,12 +17,10 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -34,12 +32,10 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import edts.android.composedemo.MainActivity
 import edts.android.composedemo.constants.Destinations
-import edts.android.composedemo.overlay.OverlayService
 import edts.android.composedemo.ui.component.DemoScaffoldComp
 import edts.android.composedemo.utils.AndroidUtil
 import edts.android.composedemo.utils.AndroidUtil.getAutostartIntent
 import android.os.PowerManager
-import android.net.Uri
 
 /**
  * OverlayScreen handles UI for enabling system permissions required to display overlay features:

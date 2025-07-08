@@ -1,4 +1,4 @@
-package edts.android.composedemo.overlay
+package edts.android.composedemo.ui.screen.overlay
 
 import androidx.lifecycle.*
 import androidx.savedstate.*

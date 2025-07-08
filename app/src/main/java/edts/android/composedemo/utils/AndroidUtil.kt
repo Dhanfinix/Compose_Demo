@@ -2,6 +2,9 @@ package edts.android.composedemo.utils
 
 import android.accessibilityservice.AccessibilityService
 import android.app.Activity
+import android.app.AppOpsManager
+import android.app.usage.UsageEvents
+import android.app.usage.UsageStatsManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -13,8 +16,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-import edts.android.composedemo.app_monitor.AppMonitorService
+import edts.android.composedemo.app_monitor.AppMonitorAccessibilityService
 import edts.android.composedemo.constants.ThemeMode
+import android.os.Process
+import androidx.core.app.AppOpsManagerCompat
 
 object AndroidUtil {
     @Composable
@@ -35,7 +40,7 @@ object AndroidUtil {
 
     fun getAccessibilityEnabled(
         context: Context
-    ) = isAccessibilityServiceEnabled(context, AppMonitorService::class.java)
+    ) = isAccessibilityServiceEnabled(context, AppMonitorAccessibilityService::class.java)
 
     private fun isAccessibilityServiceEnabled(
         context: Context,
@@ -89,5 +94,30 @@ object AndroidUtil {
         }
     }
 
+    fun checkUsageAccessPermission(context: Context): Boolean {
+        val mode = AppOpsManagerCompat.noteOp(
+            context,
+            AppOpsManager.OPSTR_GET_USAGE_STATS,
+            Process.myUid(),
+            context.packageName
+        )
+        return mode == AppOpsManager.MODE_ALLOWED
+    }
 
+    fun getForegroundApp(context: Context): String? {
+        val usageStatsManager =
+            context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        val time = System.currentTimeMillis()
+
+        val usageEvents = usageStatsManager.queryEvents(time - 2000, time)
+        var lastPackage: String? = null
+        val event = UsageEvents.Event()
+        while (usageEvents.hasNextEvent()) {
+            usageEvents.getNextEvent(event)
+            if (event.eventType == UsageEvents.Event.ACTIVITY_RESUMED) {
+                lastPackage = event.packageName
+            }
+        }
+        return lastPackage
+    }
 }

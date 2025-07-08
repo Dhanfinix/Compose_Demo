@@ -1,5 +1,9 @@
-package edts.android.composedemo.overlay
+package edts.android.composedemo.ui.screen.overlay
 
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.Build
@@ -7,7 +11,9 @@ import android.os.IBinder
 import android.util.Log
 import android.view.Gravity
 import android.view.WindowManager
+import androidx.activity.compose.BackHandler
 import androidx.compose.ui.platform.ComposeView
+import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
@@ -52,6 +58,9 @@ class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegist
             gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
         }
 
+        val notification = createOverlayNotification()
+        startForeground(NOTIFICATION_ID, notification)
+
         // 3. Prepare ComposeView with lifecycle context
         composeView = ComposeView(this).apply {
             setViewTreeLifecycleOwner(this@OverlayService)
@@ -60,7 +69,7 @@ class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegist
 
             setContent {
                 OverlayServiceScreen(
-                    delegate = object : OverlayServiceDelegate{
+                    delegate = object : OverlayServiceDelegate {
                         override fun doStopSelf() {
                             stopSelf()
                         }
@@ -98,7 +107,31 @@ class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegist
     override val savedStateRegistry: SavedStateRegistry
         get() = savedStateController.savedStateRegistry
 
+    private fun createOverlayNotification(): Notification {
+        val channelId = "overlay_channel"
+        val channelName = "Overlay Notifications"
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                channelId,
+                channelName,
+                NotificationManager.IMPORTANCE_LOW
+            )
+            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            manager.createNotificationChannel(channel)
+        }
+
+        return NotificationCompat.Builder(this, channelId)
+            .setContentTitle("Overlay Active")
+            .setContentText("Tap to return to app")
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
+            .build()
+    }
+
     companion object{
         const val OVERLAY_STOP_INTENT = "edts.android.ACTION_OVERLAY_STOPPED"
+        const val NOTIFICATION_ID = 101
     }
 }

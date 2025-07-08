@@ -5,6 +5,13 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- Needed for TYPE_APPLICATION_OVERLAY -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission
+        android:name="android.permission.PACKAGE_USAGE_STATS"
+        tools:ignore="ProtectedPermissions"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
     <application
         android:name=".App"
         android:allowBackup="true"
@@ -46,10 +53,11 @@
         </activity>
         <!-- foreground=false is OK because we’re adding a View, not binding -->
         <service
-            android:name=".overlay.OverlayService"
-            android:exported="false"/>
+            android:name=".ui.screen.overlay.OverlayService"
+            android:exported="false"
+            android:foregroundServiceType="mediaProjection"/>
         <service
-            android:name=".app_monitor.AppMonitorService"
+            android:name=".app_monitor.AppMonitorAccessibilityService"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
             android:exported="false">
             <intent-filter>
@@ -60,6 +68,9 @@
                 android:resource="@xml/accessibility_config" />
         </service>
 
+        <service
+            android:name=".app_monitor.AppMonitorUsageStatsService"
+            android:exported="false" />
     </application>
 
 </manifest>
