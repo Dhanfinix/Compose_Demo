@@ -9,11 +9,13 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
+import android.os.PowerManager
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import edts.android.composedemo.MainActivity
 import edts.android.composedemo.R
 import edts.android.composedemo.ui.screen.overlay.OverlayService
-import edts.android.composedemo.utils.AndroidUtil.getForegroundApp
+import edts.android.composedemo.utils.AndroidUtil.getForegroundAppHybrid
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -37,30 +39,56 @@ class AppMonitorUsageStatsService : Service() {
             return START_NOT_STICKY
         }
 
+        val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
         val notification = createAppMonitorNotification()
         startForeground(NOTIFICATION_MONITOR_ID, notification)
+
+        var lastValidApp: String? = null
+        var inTarget = false
+
         monitoringJob = CoroutineScope(Dispatchers.Default).launch {
-            var lastWasTarget = false
             while (isActive) {
-                val foregroundApp = getForegroundApp(this@AppMonitorUsageStatsService)
-                val isNotThisApp = foregroundApp != packageName.toString()
-                if (targetPackages.contains(foregroundApp) && !lastWasTarget) {
-                    // Target app launched
-                    startOverlay()
-                    lastWasTarget = true
-                } else if (
-                    foregroundApp != null &&
-                    !targetPackages.contains(foregroundApp) &&
-                    lastWasTarget &&
-                    isNotThisApp
-                ) {
-                    // Target app closed
-                    stopOverlay()
-                    lastWasTarget = false
+                val currentApp = getForegroundAppHybrid(this@AppMonitorUsageStatsService)
+
+                // Simpan app valid terakhir (non-null, bukan diri sendiri)
+                if (!currentApp.isNullOrEmpty() && currentApp != packageName) {
+                    lastValidApp = currentApp
                 }
-                delay(3000)
+
+                val isTarget = targetPackages.contains(currentApp)
+                val isSelf = currentApp == packageName
+                val isNull = currentApp == null
+
+                // Debug log
+                Log.d("AppMonitor", "current=$currentApp, lastValid=$lastValidApp, inTarget=$inTarget")
+
+                when {
+                    isTarget && !inTarget -> {
+                        startOverlay()
+                        inTarget = true
+                    }
+
+                    // Hanya stop jika: current app valid & bukan target
+                    (!isTarget && !isSelf && !isNull && inTarget) -> {
+                        stopOverlay()
+                        inTarget = false
+                    }
+
+                    // Optional fallback: jika currentApp == null cukup lama (mis. 2x loop)
+                    (isNull && !targetPackages.contains(lastValidApp) && inTarget) -> {
+                        stopOverlay()
+                        inTarget = false
+                    }
+                }
+
+                if (powerManager.isInteractive){
+                    delay(2_000)
+                } else {
+                    delay(10_000)
+                }
             }
         }
+
 
         return START_STICKY
     }

@@ -120,4 +120,48 @@ object AndroidUtil {
         }
         return lastPackage
     }
+
+    fun getForegroundAppHybrid(context: Context): String? {
+        val usm = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        val endTime = System.currentTimeMillis()
+        val beginTime = endTime - 5000 // ambil 5 detik terakhir
+
+        var lastEventTime = 0L
+        var currentApp: String? = null
+
+        // Pertama: telusuri UsageEvents terbaru
+        val events = usm.queryEvents(beginTime, endTime)
+        val event = UsageEvents.Event()
+        while (events.hasNextEvent()) {
+            events.getNextEvent(event)
+            if (event.eventType == UsageEvents.Event.ACTIVITY_RESUMED ||
+                event.eventType == UsageEvents.Event.MOVE_TO_FOREGROUND
+            ) {
+                if (event.timeStamp > lastEventTime) {
+                    currentApp = event.packageName
+                    lastEventTime = event.timeStamp
+                }
+            }
+        }
+
+        // Kedua: fallback ke snapshot "most recent foreground"
+        if (currentApp == null) {
+            val usageStats = usm.queryUsageStats(
+                UsageStatsManager.INTERVAL_DAILY,
+                beginTime,
+                endTime
+            )
+
+            if (!usageStats.isNullOrEmpty()) {
+                currentApp = usageStats
+                    .filter { it.lastTimeUsed > 0 }
+                    .maxByOrNull { it.lastTimeUsed }
+                    ?.packageName
+            }
+        }
+
+        return currentApp
+    }
+
+
 }
