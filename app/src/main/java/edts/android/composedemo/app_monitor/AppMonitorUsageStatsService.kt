@@ -12,9 +12,12 @@ import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
 import android.util.Log
+import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import edts.android.composedemo.MainActivity
 import edts.android.composedemo.R
+import edts.android.composedemo.screenshot.MediaProjectionPermissionHolder
+import edts.android.composedemo.screenshot.ScreenshotService
 import edts.android.composedemo.ui.screen.overlay.OverlayService
 import edts.android.composedemo.utils.AndroidUtil.getForegroundAppHybrid
 import kotlinx.coroutines.CoroutineScope
@@ -32,7 +35,8 @@ class AppMonitorUsageStatsService : Service() {
         "mypoin.indomaret.android",
         "com.bca",
         "id.co.bri.brimo",
-        "com.android.chrome"
+        "com.android.chrome",
+        "id.dana"
     )
 
     override fun onCreate() {
@@ -121,11 +125,32 @@ class AppMonitorUsageStatsService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     private fun startOverlay() {
-        startService(Intent(applicationContext, OverlayService::class.java))
+        // Use a 'let' block for safer handling of nullable properties
+        MediaProjectionPermissionHolder.dataIntent?.let { data ->
+            val resultCode = MediaProjectionPermissionHolder.resultCode!! // Assuming resultCode is always valid if data is not null
+
+            val serviceIntent = Intent(applicationContext, ScreenshotService::class.java).apply {
+                // Use the constants defined in the service for type-safety
+                putExtra(ScreenshotService.EXTRA_RESULT_CODE, resultCode)
+                putExtra(ScreenshotService.EXTRA_DATA, data)
+            }
+
+            // CRITICAL: Use startForegroundService for services that call startForeground()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(serviceIntent)
+            } else {
+                // Fallback for older Android versions
+                startService(serviceIntent)
+            }
+
+        } ?: run {
+            // This block runs if the permission data is not available
+            Toast.makeText(applicationContext, "Permission data is missing. Please grant permission again.", Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun stopOverlay() {
-        stopService(Intent(applicationContext, OverlayService::class.java))
+        stopService(Intent(applicationContext, ScreenshotService::class.java))
     }
 
     private fun createAppMonitorNotification(): Notification {

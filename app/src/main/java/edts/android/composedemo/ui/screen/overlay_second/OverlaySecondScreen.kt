@@ -1,7 +1,13 @@
 package edts.android.composedemo.ui.screen.overlay_second
 
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.media.projection.MediaProjectionManager
 import android.provider.Settings
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -33,6 +39,7 @@ import edts.android.composedemo.MainActivity
 import edts.android.composedemo.app_monitor.AppMonitorStatus
 import edts.android.composedemo.app_monitor.AppMonitorUsageStatsService
 import edts.android.composedemo.constants.Destinations
+import edts.android.composedemo.screenshot.MediaProjectionPermissionHolder
 import edts.android.composedemo.ui.component.DemoScaffoldComp
 import edts.android.composedemo.utils.AndroidUtil.checkUsageAccessPermission
 
@@ -49,6 +56,17 @@ fun OverlaySecondScreen(
     val appMonitorIntent by lazy { Intent(activity, AppMonitorUsageStatsService::class.java) }
     val isAppMonitorRunning by AppMonitorStatus.isRunning.collectAsState()
     val lifecycleOwner = LocalLifecycleOwner.current
+
+    val capturePermissionState by MediaProjectionPermissionHolder.permissionState.collectAsState()
+    val screenCapturePermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK && result.data != null) {
+            MediaProjectionPermissionHolder.set(result.resultCode, result.data!!)
+        } else {
+            MediaProjectionPermissionHolder.clear()
+        }
+    }
 
     // Observe permission changes on resume
     DisposableEffect(lifecycleOwner) {
@@ -96,6 +114,18 @@ fun OverlaySecondScreen(
                 }
             )
 
+            PermissionCard(
+                title = "Media Project Permission",
+                description = "Allows this app to capture your screen when target app is foreground, the image then used to analyzed locally by AI.",
+                granted = capturePermissionState is MediaProjectionPermissionHolder.PermissionState.Granted,
+                onClick = {
+                    val mediaProjectionManager =
+                        context.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+                    val permissionIntent = mediaProjectionManager.createScreenCaptureIntent()
+                    screenCapturePermissionLauncher.launch(permissionIntent)
+                }
+            )
+
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -107,7 +137,9 @@ fun OverlaySecondScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Button(
-                    enabled = hasPermission && hasOverlayPermissions,
+                    enabled = hasPermission &&
+                            hasOverlayPermissions &&
+                            capturePermissionState is MediaProjectionPermissionHolder.PermissionState.Granted,
                     onClick = {
                         if (isAppMonitorRunning) {
                             activity.stopService(appMonitorIntent)
