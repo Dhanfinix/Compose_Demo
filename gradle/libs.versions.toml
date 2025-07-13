@@ -22,6 +22,8 @@ retrofit = "2.9.0"
 okhttp = "4.9.0"
 google-secret = "2.0.1"
 lifecycle-service = "2.9.1"
+tf-lite = "2.17.0"
+tf-lite-support = "0.5.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -54,6 +56,8 @@ retrofit = {group = "com.squareup.retrofit2", name = "retrofit", version.ref = "
 retrofit-gson = {group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit"}
 okhttp = {group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp"}
 lifecycle-service = { group = "androidx.lifecycle", name = "lifecycle-service", version.ref = "lifecycle-service" }
+tf-lite = { group = "org.tensorflow", name = "tensorflow-lite", version.ref = "tf-lite"}
+tf-lite-support = { group = "org.tensorflow", name = "tensorflow-lite-support", version.ref = "tf-lite-support"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

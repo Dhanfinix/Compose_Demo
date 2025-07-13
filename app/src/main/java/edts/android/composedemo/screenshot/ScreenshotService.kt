@@ -26,9 +26,15 @@ import java.text.SimpleDateFormat
 import java.util.*
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.get
+import edts.android.composedemo.ui.screen.overlay.OverlayService
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import org.tensorflow.lite.Interpreter
+import java.nio.channels.FileChannel
 
+enum class ScreenType{
+    NOT_PAYMENT, PAYMENT, SUCCESS_PAYMENT
+}
 class ScreenshotService : Service() {
 
     // A dedicated coroutine scope for background tasks, ensuring they don't block the main thread.
@@ -46,6 +52,16 @@ class ScreenshotService : Service() {
     private var lastScreenshotHash: Long = 0L
 
     private val imageProcessingMutex = Mutex()
+
+    private lateinit var tflite: Interpreter
+    private var inputImageWidth = 0
+    private var inputImageHeight = 0
+
+    override fun onCreate() {
+        super.onCreate()
+        loadModel()
+    }
+
 
     // A callback for MediaProjection stopping unexpectedly.
     private val mediaProjectionCallback = object : MediaProjection.Callback() {
@@ -120,7 +136,12 @@ class ScreenshotService : Service() {
                     if (changePercentage > CHANGE_THRESHOLD) {
                         Log.i(TAG, "Significant change detected: ${(changePercentage * 100).toInt()}%")
                         lastScreenshotHash = currentHash
-                        saveForAIAnalysis(bitmap, changePercentage)
+//                        saveForAIAnalysis(bitmap, changePercentage)
+                        if (analyzeBitmapWithTFLite(bitmap)){
+                            startOverlay()
+                        } else {
+                            stopOverlay()
+                        }
                     }
 
                     bitmap.recycle()
@@ -129,6 +150,14 @@ class ScreenshotService : Service() {
                 }
             }
         }
+    }
+
+    private fun startOverlay() {
+        startService(Intent(applicationContext, OverlayService::class.java))
+    }
+
+    private fun stopOverlay() {
+        stopService(Intent(applicationContext, OverlayService::class.java))
     }
 
     /**
@@ -278,6 +307,96 @@ class ScreenshotService : Service() {
             .setSmallIcon(android.R.drawable.ic_menu_camera)
             .setOngoing(true)
             .build()
+    }
+
+    private fun loadModel() {
+        val assetFileDescriptor = assets.openFd("mobilenetv3_payment_screen.tflite")
+        val fileInputStream = assetFileDescriptor.createInputStream()
+        val fileChannel = fileInputStream.channel
+        val startOffset = assetFileDescriptor.startOffset
+        val declaredLength = assetFileDescriptor.declaredLength
+        val modelBuffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength)
+
+        tflite = Interpreter(modelBuffer)
+
+        // Get input shape dynamically
+        val inputShape = tflite.getInputTensor(0).shape()
+        inputImageHeight = inputShape[1] // Should be 224
+        inputImageWidth = inputShape[2]  // Should be 224
+
+        println("MobileNetV3 model loaded - Input shape: ${inputShape.contentToString()}")
+    }
+
+    private fun analyzeBitmapWithTFLite(bitmap: Bitmap): Boolean {
+        // Step 1: Resize to 256 maintaining aspect ratio (matching PyTorch resize_size=[256])
+        val resizedBitmap = resizeWithAspectRatio(bitmap, 256)
+
+        // Step 2: Center crop to 224x224 (matching PyTorch crop_size=[224])
+        val croppedBitmap = centerCrop(resizedBitmap, inputImageWidth, inputImageHeight)
+
+        // Step 3: Normalize using exact MobileNetV3 ImageNet mean/std
+        val mean = floatArrayOf(0.485f, 0.456f, 0.406f)
+        val std = floatArrayOf(0.229f, 0.224f, 0.225f)
+
+        val input = Array(1) { Array(inputImageHeight) { Array(inputImageWidth) { FloatArray(3) } } }
+
+        for (y in 0 until inputImageHeight) {
+            for (x in 0 until inputImageWidth) {
+                val px = croppedBitmap[x, y]
+
+                input[0][y][x][0] = ((Color.red(px) / 255.0f) - mean[0]) / std[0] // R
+                input[0][y][x][1] = ((Color.green(px) / 255.0f) - mean[1]) / std[1] // G
+                input[0][y][x][2] = ((Color.blue(px) / 255.0f) - mean[2]) / std[2] // B
+            }
+        }
+
+        val output = Array(1) { FloatArray(ScreenType.entries.size) }
+
+        tflite.run(input, output)
+
+        val probabilities = output[0]
+        val maxIndex = probabilities.indices.maxByOrNull { probabilities[it] } ?: -1
+        val confidence = probabilities[maxIndex]
+        val label = ScreenType.entries[maxIndex]
+
+        val result = "Prediction: $label (${String.format(Locale.getDefault(), "%.2f", confidence * 100)}%)"
+        println(result)
+        return label == ScreenType.PAYMENT
+    }
+
+    /**
+     * Resize bitmap maintaining aspect ratio, with shorter edge scaled to targetSize
+     * This matches PyTorch's resize_size=[256] behavior for MobileNetV3
+     */
+    private fun resizeWithAspectRatio(bitmap: Bitmap, targetSize: Int): Bitmap {
+        val width = bitmap.width
+        val height = bitmap.height
+
+        val newWidth: Int
+        val newHeight: Int
+
+        if (width < height) {
+            // Width is shorter, scale it to targetSize
+            newWidth = targetSize
+            newHeight = (targetSize * height / width)
+        } else {
+            // Height is shorter, scale it to targetSize
+            newWidth = (targetSize * width / height)
+            newHeight = targetSize
+        }
+
+        return bitmap.scale(newWidth, newHeight)
+    }
+
+    /**
+     * Center crop bitmap to specified dimensions
+     * This matches PyTorch's crop_size=[224] behavior for MobileNetV3
+     */
+    private fun centerCrop(bitmap: Bitmap, cropWidth: Int, cropHeight: Int): Bitmap {
+        val startX = (bitmap.width - cropWidth) / 2
+        val startY = (bitmap.height - cropHeight) / 2
+
+        return Bitmap.createBitmap(bitmap, startX, startY, cropWidth, cropHeight)
     }
 
     companion object {

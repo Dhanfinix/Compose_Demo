@@ -103,4 +103,8 @@ dependencies {
 
     // lifecycle-service
     implementation(libs.lifecycle.service)
+
+    // tf-lite
+    implementation(libs.tf.lite)
+    implementation(libs.tf.lite.support)
 }
