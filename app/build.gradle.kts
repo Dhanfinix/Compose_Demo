@@ -107,4 +107,7 @@ dependencies {
     // tf-lite
     implementation(libs.tf.lite)
     implementation(libs.tf.lite.support)
+
+    // icons-extended
+    implementation(libs.icons.extended)
 }

@@ -1,69 +1,38 @@
 package edts.android.composedemo.screenshot
 
-import android.app.*
-import android.content.ContentValues
+import android.app.Activity
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.Color
 import android.graphics.PixelFormat
 import android.hardware.display.DisplayManager
 import android.hardware.display.VirtualDisplay
-import android.media.Image
 import android.media.ImageReader
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
-import android.os.*
-import android.provider.MediaStore
-import android.util.DisplayMetrics
+import android.os.Build
+import android.os.IBinder
 import android.util.Log
-import android.view.WindowInsets
-import android.view.WindowManager
 import androidx.core.app.NotificationCompat
-import androidx.core.graphics.scale
-import kotlinx.coroutines.*
-import java.text.SimpleDateFormat
-import java.util.*
-import androidx.core.graphics.createBitmap
-import androidx.core.graphics.get
-import edts.android.composedemo.ui.screen.overlay.OverlayService
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import org.tensorflow.lite.Interpreter
-import java.nio.channels.FileChannel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
-enum class ScreenType{
-    NOT_PAYMENT, PAYMENT, SUCCESS_PAYMENT
-}
 class ScreenshotService : Service() {
-
     // A dedicated coroutine scope for background tasks, ensuring they don't block the main thread.
     // SupervisorJob prevents the entire scope from being cancelled if one child coroutine fails.
     private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-
     private lateinit var mediaProjection: MediaProjection
     private lateinit var virtualDisplay: VirtualDisplay
     private lateinit var imageReader: ImageReader
 
-    private var screenWidth = 0
-    private var screenHeight = 0
-    private var screenDensity = 0
+    private lateinit var imageProcessor: ImageProcessor
 
-    private var lastScreenshotHash: Long = 0L
-
-    private val imageProcessingMutex = Mutex()
-
-    private lateinit var tflite: Interpreter
-    private var inputImageWidth = 0
-    private var inputImageHeight = 0
-
-    override fun onCreate() {
-        super.onCreate()
-        loadModel()
-    }
-
-
-    // A callback for MediaProjection stopping unexpectedly.
     private val mediaProjectionCallback = object : MediaProjection.Callback() {
         override fun onStop() {
             Log.d(TAG, "MediaProjection session stopped.")
@@ -71,16 +40,26 @@ class ScreenshotService : Service() {
         }
     }
 
+    override fun onCreate() {
+        super.onCreate()
+        imageProcessor = ImageProcessor(this)
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         createNotificationChannel()
         startForeground(NOTIFICATION_ID, createNotification())
 
         val resultCode = intent?.getIntExtra(EXTRA_RESULT_CODE, Activity.RESULT_CANCELED)
-        val data = intent?.getParcelableExtra<Intent>(EXTRA_DATA)
+        val data = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent?.getParcelableExtra(EXTRA_DATA, Intent::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            intent?.getParcelableExtra(EXTRA_DATA)
+        }
 
         if (resultCode == Activity.RESULT_OK && data != null) {
-            setupScreenMetrics()
-            startScreenCapture(resultCode, data)
+            val screenMetrics = ScreenMetricsHelper(this).getScreenMetrics()
+            setupProjection(resultCode, data, screenMetrics)
         } else {
             Log.e(TAG, "Failed to get valid screen capture permissions.")
             stopSelf()
@@ -89,204 +68,31 @@ class ScreenshotService : Service() {
         return START_NOT_STICKY
     }
 
-    private fun startScreenCapture(resultCode: Int, data: Intent) {
+    private fun setupProjection(resultCode: Int, data: Intent, metrics: ScreenMetrics) {
         val mediaProjectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         mediaProjection = mediaProjectionManager.getMediaProjection(resultCode, data)
         mediaProjection.registerCallback(mediaProjectionCallback, null)
 
-        // Setup ImageReader to capture screen content.
-        imageReader = ImageReader.newInstance(screenWidth, screenHeight, PixelFormat.RGBA_8888, 2).apply {
+        imageReader = ImageReader.newInstance(metrics.width, metrics.height, PixelFormat.RGBA_8888, 2).apply {
             setOnImageAvailableListener({ reader ->
-                // Launch a coroutine to process the image off the main thread.
                 serviceScope.launch {
-                    processImage(reader)
+                    imageProcessor.processImage(reader)
                 }
-            }, null) // Use a background thread handler by passing null.
+            }, null)
         }
 
         virtualDisplay = mediaProjection.createVirtualDisplay(
             "ScreenshotVirtualDisplay",
-            screenWidth,
-            screenHeight,
-            screenDensity,
+            metrics.width,
+            metrics.height,
+            metrics.density,
             DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
             imageReader.surface,
             null,
             null
         )
+
         Log.d(TAG, "Screen capture started.")
-    }
-
-    /**
-     * Processes an image from the ImageReader on a background thread.
-     */
-    private suspend fun processImage(reader: ImageReader) {
-        // withLock ensures only one coroutine can enter this block at a time.
-        // It also safely releases the lock even if an exception occurs.
-        imageProcessingMutex.withLock {
-            reader.acquireLatestImage()?.use { image ->
-                try {
-                    val bitmap = imageToBitmap(image)
-                    val currentHash = calculateDifferenceHash(bitmap)
-
-                    val changePercentage = if (lastScreenshotHash != 0L) {
-                        calculateHashDifference(lastScreenshotHash, currentHash)
-                    } else 1.0f
-
-                    if (changePercentage > CHANGE_THRESHOLD) {
-                        Log.i(TAG, "Significant change detected: ${(changePercentage * 100).toInt()}%")
-                        lastScreenshotHash = currentHash
-//                        saveForAIAnalysis(bitmap, changePercentage)
-                        if (analyzeBitmapWithTFLite(bitmap)){
-                            startOverlay()
-                        } else {
-                            stopOverlay()
-                        }
-                    }
-
-                    bitmap.recycle()
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error processing screen image", e)
-                }
-            }
-        }
-    }
-
-    private fun startOverlay() {
-        startService(Intent(applicationContext, OverlayService::class.java))
-    }
-
-    private fun stopOverlay() {
-        stopService(Intent(applicationContext, OverlayService::class.java))
-    }
-
-    /**
-     * Converts an Image object to a Bitmap.
-     */
-    private fun imageToBitmap(image: Image): Bitmap {
-        val planes = image.planes[0]
-        val buffer = planes.buffer
-        val pixelStride = planes.pixelStride
-        val rowStride = planes.rowStride
-        val rowPadding = rowStride - pixelStride * image.width
-
-        val bitmap = createBitmap(image.width + rowPadding / pixelStride, image.height)
-        bitmap.copyPixelsFromBuffer(buffer)
-
-        // If there was padding, create a final cropped bitmap.
-        if (rowPadding > 0) {
-            val croppedBitmap = Bitmap.createBitmap(bitmap, 0, 0, image.width, image.height)
-            bitmap.recycle()
-            return croppedBitmap
-        }
-
-        return bitmap
-    }
-
-    /**
-     * Calculates a Difference Hash (dHash) for the bitmap.
-     * dHash is a perceptual hash robust to minor changes.
-     */
-    private fun calculateDifferenceHash(bitmap: Bitmap): Long {
-        // 1. Resize to a small fixed size (e.g., 9x8). 9x8 allows for 8x8 comparisons.
-        val smallBitmap = bitmap.scale(DHASH_WIDTH + 1, DHASH_HEIGHT, false)
-        var hash = 0L
-
-        for (y in 0 until DHASH_HEIGHT) {
-            for (x in 0 until DHASH_WIDTH) {
-                // 2. Get grayscale values of adjacent pixels.
-                val leftPixel = Color.red(smallBitmap[x, y])
-                val rightPixel = Color.red(smallBitmap[x + 1, y])
-
-                // 3. Compare pixels and set a bit.
-                hash = hash shl 1
-                if (leftPixel > rightPixel) {
-                    hash = hash or 1
-                }
-            }
-        }
-
-        smallBitmap.recycle()
-        return hash
-    }
-
-    /**
-     * Calculates the normalized Hamming distance between two hashes.
-     * Represents the percentage of bits that are different.
-     */
-    private fun calculateHashDifference(hash1: Long, hash2: Long): Float {
-        // The number of differing bits (Hamming distance).
-        val differingBits = (hash1 xor hash2).countOneBits()
-        return differingBits / 64.0f
-    }
-
-    /**
-     * Saves the bitmap to the device's gallery for analysis.
-     * This is an I/O operation and should be called from a background coroutine.
-     */
-    private suspend fun saveForAIAnalysis(bitmap: Bitmap, changePercentage: Float) = withContext(Dispatchers.IO) {
-        val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-        val filename = "AI_Analysis_${timestamp}_${(changePercentage * 100).toInt()}pct.png"
-
-        val values = ContentValues().apply {
-            put(MediaStore.Images.Media.DISPLAY_NAME, filename)
-            put(MediaStore.Images.Media.MIME_TYPE, "image/png")
-            put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/AI_Screenshots")
-        }
-
-        try {
-            val uri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
-            uri?.let {
-                contentResolver.openOutputStream(it)?.use { stream ->
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 90, stream)
-                    Log.d(TAG, "Saved screenshot: $filename to $uri")
-                }
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to save image", e)
-        }
-    }
-
-    // --- Boilerplate and Lifecycle ---
-
-    override fun onBind(intent: Intent?): IBinder? = null
-
-    override fun onDestroy() {
-        super.onDestroy()
-        serviceScope.cancel() // Safely cancel all coroutines.
-
-        // Check if virtualDisplay is initialized before releasing.
-        if (::virtualDisplay.isInitialized) {
-            virtualDisplay.release()
-        }
-
-        // Check if mediaProjection is initialized before unregistering and stopping.
-        if (::mediaProjection.isInitialized) {
-            mediaProjection.unregisterCallback(mediaProjectionCallback)
-            mediaProjection.stop()
-        }
-
-        Log.d(TAG, "ScreenshotService destroyed.")
-    }
-
-    private fun setupScreenMetrics() {
-        val windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        screenDensity = resources.displayMetrics.densityDpi
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val windowMetrics = windowManager.currentWindowMetrics
-            val insets = windowMetrics.windowInsets.getInsetsIgnoringVisibility(
-                WindowInsets.Type.navigationBars() or WindowInsets.Type.displayCutout()
-            )
-            screenWidth = windowMetrics.bounds.width() - insets.left - insets.right
-            screenHeight = windowMetrics.bounds.height() - insets.top - insets.bottom
-        } else {
-            val displayMetrics = DisplayMetrics()
-            @Suppress("DEPRECATION")
-            windowManager.defaultDisplay.getMetrics(displayMetrics)
-            screenWidth = displayMetrics.widthPixels
-            screenHeight = displayMetrics.heightPixels
-        }
     }
 
     private fun createNotificationChannel() {
@@ -309,95 +115,18 @@ class ScreenshotService : Service() {
             .build()
     }
 
-    private fun loadModel() {
-        val assetFileDescriptor = assets.openFd("mobilenetv3_payment_screen.tflite")
-        val fileInputStream = assetFileDescriptor.createInputStream()
-        val fileChannel = fileInputStream.channel
-        val startOffset = assetFileDescriptor.startOffset
-        val declaredLength = assetFileDescriptor.declaredLength
-        val modelBuffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength)
-
-        tflite = Interpreter(modelBuffer)
-
-        // Get input shape dynamically
-        val inputShape = tflite.getInputTensor(0).shape()
-        inputImageHeight = inputShape[1] // Should be 224
-        inputImageWidth = inputShape[2]  // Should be 224
-
-        println("MobileNetV3 model loaded - Input shape: ${inputShape.contentToString()}")
-    }
-
-    private fun analyzeBitmapWithTFLite(bitmap: Bitmap): Boolean {
-        // Step 1: Resize to 256 maintaining aspect ratio (matching PyTorch resize_size=[256])
-        val resizedBitmap = resizeWithAspectRatio(bitmap, 256)
-
-        // Step 2: Center crop to 224x224 (matching PyTorch crop_size=[224])
-        val croppedBitmap = centerCrop(resizedBitmap, inputImageWidth, inputImageHeight)
-
-        // Step 3: Normalize using exact MobileNetV3 ImageNet mean/std
-        val mean = floatArrayOf(0.485f, 0.456f, 0.406f)
-        val std = floatArrayOf(0.229f, 0.224f, 0.225f)
-
-        val input = Array(1) { Array(inputImageHeight) { Array(inputImageWidth) { FloatArray(3) } } }
-
-        for (y in 0 until inputImageHeight) {
-            for (x in 0 until inputImageWidth) {
-                val px = croppedBitmap[x, y]
-
-                input[0][y][x][0] = ((Color.red(px) / 255.0f) - mean[0]) / std[0] // R
-                input[0][y][x][1] = ((Color.green(px) / 255.0f) - mean[1]) / std[1] // G
-                input[0][y][x][2] = ((Color.blue(px) / 255.0f) - mean[2]) / std[2] // B
-            }
+    override fun onDestroy() {
+        super.onDestroy()
+        serviceScope.cancel()
+        if (::virtualDisplay.isInitialized) virtualDisplay.release()
+        if (::mediaProjection.isInitialized) {
+            mediaProjection.unregisterCallback(mediaProjectionCallback)
+            mediaProjection.stop()
         }
-
-        val output = Array(1) { FloatArray(ScreenType.entries.size) }
-
-        tflite.run(input, output)
-
-        val probabilities = output[0]
-        val maxIndex = probabilities.indices.maxByOrNull { probabilities[it] } ?: -1
-        val confidence = probabilities[maxIndex]
-        val label = ScreenType.entries[maxIndex]
-
-        val result = "Prediction: $label (${String.format(Locale.getDefault(), "%.2f", confidence * 100)}%)"
-        println(result)
-        return label == ScreenType.PAYMENT
+        Log.d(TAG, "ScreenshotService destroyed.")
     }
 
-    /**
-     * Resize bitmap maintaining aspect ratio, with shorter edge scaled to targetSize
-     * This matches PyTorch's resize_size=[256] behavior for MobileNetV3
-     */
-    private fun resizeWithAspectRatio(bitmap: Bitmap, targetSize: Int): Bitmap {
-        val width = bitmap.width
-        val height = bitmap.height
-
-        val newWidth: Int
-        val newHeight: Int
-
-        if (width < height) {
-            // Width is shorter, scale it to targetSize
-            newWidth = targetSize
-            newHeight = (targetSize * height / width)
-        } else {
-            // Height is shorter, scale it to targetSize
-            newWidth = (targetSize * width / height)
-            newHeight = targetSize
-        }
-
-        return bitmap.scale(newWidth, newHeight)
-    }
-
-    /**
-     * Center crop bitmap to specified dimensions
-     * This matches PyTorch's crop_size=[224] behavior for MobileNetV3
-     */
-    private fun centerCrop(bitmap: Bitmap, cropWidth: Int, cropHeight: Int): Bitmap {
-        val startX = (bitmap.width - cropWidth) / 2
-        val startY = (bitmap.height - cropHeight) / 2
-
-        return Bitmap.createBitmap(bitmap, startX, startY, cropWidth, cropHeight)
-    }
+    override fun onBind(intent: Intent?): IBinder? = null
 
     companion object {
         private const val TAG = "ScreenshotService"
@@ -406,12 +135,6 @@ class ScreenshotService : Service() {
 
         const val EXTRA_RESULT_CODE = "extra_result_code"
         const val EXTRA_DATA = "extra_data"
-
-        // Threshold for detecting a "significant" change (e.g., 5%).
-        private const val CHANGE_THRESHOLD = 0.05f
-
-        // dHash dimensions
-        private const val DHASH_WIDTH = 8
-        private const val DHASH_HEIGHT = 8
     }
 }
+
