@@ -111,7 +111,7 @@ class ImageProcessor(private val context: Context) {
     }
 
     private fun loadModel() {
-        val assetFileDescriptor = context.assets.openFd("mobilenetv3_payment_screen.tflite")
+        val assetFileDescriptor = context.assets.openFd("mobilenetv3_payment_screen_fp16.tflite")
         val fileInputStream = assetFileDescriptor.createInputStream()
         val fileChannel = fileInputStream.channel
         val modelBuffer = fileChannel.map(
