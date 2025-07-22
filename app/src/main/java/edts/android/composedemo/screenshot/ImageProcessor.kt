@@ -11,6 +11,10 @@ import androidx.core.graphics.createBitmap
 import androidx.core.graphics.get
 import androidx.core.graphics.scale
 import edts.android.composedemo.ui.screen.overlay.OverlayService
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.tensorflow.lite.Interpreter
@@ -25,6 +29,8 @@ class ImageProcessor(private val context: Context) {
     private var inputImageWidth = 0
     private var inputImageHeight = 0
     private var lastScreenType: ScreenType? = null
+    private var isOverlayRunning = false
+    private val currencyExtractor = CurrencyExtractor()
 
     init {
         loadModel()
@@ -40,15 +46,28 @@ class ImageProcessor(private val context: Context) {
                         calculateHashDifference(lastScreenshotHash, currentHash)
                     } else 1.0f
 
+                    println("Change percentage = $changePercentage [Threshold = $CHANGE_THRESHOLD]")
                     if (changePercentage > CHANGE_THRESHOLD) {
                         lastScreenshotHash = currentHash
                         val isPayment = isPaymentScreen(bitmap)
 
                         if (isPayment) {
-                            if (lastScreenType != ScreenType.PAYMENT) {
-                                startOverlay()
-                            } else {
-                                Log.d(TAG, "Still in Payment screen — skipping overlay start.")
+                            val safeBitmap = bitmap.copy(bitmap.config ?: Bitmap.Config.ARGB_8888, false)
+                            CoroutineScope(Dispatchers.Main).launch {
+                                currencyExtractor.extractFromBitmap(
+                                    bitmap = safeBitmap,
+                                    onSuccess = { nominal ->
+                                        sendToOverlay(nominal)
+                                    },
+                                    onFailure = { error ->
+                                        stopOverlay()
+                                        Log.e(TAG, error)
+                                    },
+                                    onRejected = { value, reason->
+                                        //stopOverlay()
+                                        sendToOverlay(value, reason)
+                                    }
+                                )
                             }
                             lastScreenType = ScreenType.PAYMENT
                         } else {
@@ -68,10 +87,12 @@ class ImageProcessor(private val context: Context) {
 
     private fun startOverlay() {
         context.startService(Intent(context, OverlayService::class.java))
+        isOverlayRunning = true
     }
 
     private fun stopOverlay() {
         context.stopService(Intent(context, OverlayService::class.java))
+        isOverlayRunning = false
     }
 
     private fun imageToBitmap(image: Image): Bitmap {
@@ -168,9 +189,31 @@ class ImageProcessor(private val context: Context) {
         return Bitmap.createBitmap(bitmap, startX, startY, cropW, cropH)
     }
 
+    private fun sendToOverlay(nominal: String, reason: String? = null) {
+        if (!isOverlayRunning) {
+            startOverlay()
+            // Wait a bit for service to initialize before sending update
+            CoroutineScope(Dispatchers.Main).launch {
+                delay(100) // Small delay
+                sendUpdateIntent(nominal, reason)
+            }
+        } else {
+            sendUpdateIntent(nominal, reason)
+        }
+    }
+
+    private fun sendUpdateIntent(nominal: String, reason: String?) {
+        val intent = Intent(context, OverlayService::class.java).apply {
+            action = OverlayService.UPDATE_ACTION
+            putExtra(OverlayService.NOMINAL, nominal)
+            putExtra(OverlayService.REASON, reason)
+        }
+        context.startService(intent)
+    }
+
     companion object {
         private const val TAG = "ImageProcessor"
-        private const val CHANGE_THRESHOLD = 0.05f
+        private const val CHANGE_THRESHOLD = 0.015f //0.05f
         private const val DHASH_WIDTH = 8
         private const val DHASH_HEIGHT = 8
     }

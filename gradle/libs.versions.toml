@@ -25,6 +25,7 @@ lifecycle-service = "2.9.1"
 tf-lite = "2.17.0"
 tf-lite-support = "0.5.0"
 icons-extended = "1.7.8"
+mlkit-ocr = "16.0.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -60,6 +61,7 @@ lifecycle-service = { group = "androidx.lifecycle", name = "lifecycle-service", 
 tf-lite = { group = "org.tensorflow", name = "tensorflow-lite", version.ref = "tf-lite"}
 tf-lite-support = { group = "org.tensorflow", name = "tensorflow-lite-support", version.ref = "tf-lite-support"}
 icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "icons-extended" }
+mlkit-ocr = { group = "com.google.mlkit", name = "text-recognition", version.ref = "mlkit-ocr"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

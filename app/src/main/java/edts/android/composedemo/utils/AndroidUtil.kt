@@ -19,6 +19,8 @@ import androidx.core.view.WindowCompat
 import edts.android.composedemo.app_monitor.AppMonitorAccessibilityService
 import edts.android.composedemo.constants.ThemeMode
 import android.os.Process
+import android.view.View
+import android.view.WindowManager
 import androidx.core.app.AppOpsManagerCompat
 
 object AndroidUtil {
@@ -163,5 +165,22 @@ object AndroidUtil {
         return currentApp
     }
 
+    fun View.setSecureFlag() {
+        this.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+            override fun onViewAttachedToWindow(v: View) {
+                v.rootView?.rootView?.apply {
+                    val lp = this@apply.layoutParams as? WindowManager.LayoutParams
+                    lp?.let {
+                        lp.flags = lp.flags.or(WindowManager.LayoutParams.FLAG_SECURE)
+                    }
+                    val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+                    wm.updateViewLayout(this, lp)
+                }
+                v.removeOnAttachStateChangeListener(this)
+            }
+
+            override fun onViewDetachedFromWindow(v: View) {}
+        })
+    }
 
 }

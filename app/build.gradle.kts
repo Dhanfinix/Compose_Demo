@@ -110,4 +110,7 @@ dependencies {
 
     // icons-extended
     implementation(libs.icons.extended)
+
+    // mlkit-ocr
+    implementation(libs.mlkit.ocr)
 }

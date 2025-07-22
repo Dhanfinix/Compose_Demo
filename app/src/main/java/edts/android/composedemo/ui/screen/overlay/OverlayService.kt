@@ -9,12 +9,13 @@ import android.content.pm.ServiceInfo
 import android.graphics.PixelFormat
 import android.os.Build
 import android.os.IBinder
-import android.util.Log
 import android.view.Gravity
 import android.view.WindowManager
-import androidx.activity.compose.BackHandler
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.app.NotificationCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
@@ -24,13 +25,30 @@ import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import edts.android.composedemo.utils.AndroidUtil.setSecureFlag
 
 class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegistryOwner {
     private lateinit var windowManager: WindowManager
     private lateinit var composeView: ComposeView
-
     private lateinit var savedStateController: SavedStateRegistryController
     private val vmStore = ViewModelStore()
+    private lateinit var viewModel: OverlayServiceScreenViewModel
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        when(intent?.action){
+            UPDATE_ACTION -> {
+                val nominal = intent.getStringExtra(NOMINAL)
+                val reason = intent.getStringExtra(REASON)
+                if (::viewModel.isInitialized){
+                    viewModel.updateNominal(nominal.orEmpty())
+                    viewModel.updateReason(reason.orEmpty())
+                }
+            } else -> {
+                super.onStartCommand(intent, flags, startId)
+            }
+        }
+        return START_STICKY
+    }
 
     override fun onCreate() {
         // 1. Create and attach the SavedStateRegistryController early
@@ -49,8 +67,8 @@ class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegist
             WindowManager.LayoutParams.TYPE_PHONE
 
         val params = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            WindowManager.LayoutParams.WRAP_CONTENT,
             overlayType,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                     WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
@@ -85,6 +103,7 @@ class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegist
             setViewTreeLifecycleOwner(this@OverlayService)
             setViewTreeViewModelStoreOwner(this@OverlayService)
             setViewTreeSavedStateRegistryOwner(this@OverlayService)
+            setSecureFlag()
 
             // Enable edge-to-edge for the ComposeView
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -95,7 +114,10 @@ class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegist
             }
 
             setContent {
-                OverlayServiceScreen(
+                viewModel = hiltViewModel()
+                val uiState by viewModel.uiState.collectAsState()
+                OverlayLowServiceScreen(
+                    uiState = uiState,
                     delegate = object : OverlayServiceDelegate {
                         override fun doStopSelf() {
                             stopSelf()
@@ -160,5 +182,8 @@ class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegist
     companion object{
         const val OVERLAY_STOP_INTENT = "edts.android.ACTION_OVERLAY_STOPPED"
         const val NOTIFICATION_ID = 101
+        const val NOMINAL = "NOMINAL"
+        const val REASON = "REASON"
+        const val UPDATE_ACTION = "UPDATE_NOMINAL"
     }
 }
