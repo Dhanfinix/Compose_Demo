@@ -29,9 +29,9 @@ class ScreenshotService : Service() {
     private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private lateinit var mediaProjection: MediaProjection
     private lateinit var virtualDisplay: VirtualDisplay
-    private lateinit var imageReader: ImageReader
+    private var imageReader: ImageReader? = null
 
-    private lateinit var imageProcessor: ImageProcessor
+    private var imageProcessor: ImageProcessor? = null
 
     private val mediaProjectionCallback = object : MediaProjection.Callback() {
         override fun onStop() {
@@ -76,7 +76,7 @@ class ScreenshotService : Service() {
         imageReader = ImageReader.newInstance(metrics.width, metrics.height, PixelFormat.RGBA_8888, 2).apply {
             setOnImageAvailableListener({ reader ->
                 serviceScope.launch {
-                    imageProcessor.processImage(reader)
+                    imageProcessor?.processImage(reader)
                 }
             }, null)
         }
@@ -87,7 +87,7 @@ class ScreenshotService : Service() {
             metrics.height,
             metrics.density,
             DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
-            imageReader.surface,
+            imageReader?.surface,
             null,
             null
         )
@@ -117,6 +117,8 @@ class ScreenshotService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+        imageReader = null
+        imageProcessor = null
         serviceScope.cancel()
         if (::virtualDisplay.isInitialized) virtualDisplay.release()
         if (::mediaProjection.isInitialized) {

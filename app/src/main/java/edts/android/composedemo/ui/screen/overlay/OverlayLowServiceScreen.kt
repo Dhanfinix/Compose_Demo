@@ -94,19 +94,19 @@ fun OverlayLowServiceScreen(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ){
                         Text(
-                            text = "Detected nominal: ${uiState.nominal}",
+                            text = "Detected nominal: \n${uiState.nominal}",
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurface,
                             textAlign = TextAlign.Center
                         )
-                        if (uiState.reason.isNotEmpty()){
-                            Text(
-                                text = uiState.reason,
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                textAlign = TextAlign.Center
-                            )
-                        }
+//                        if (uiState.reason.isNotEmpty()){
+//                            Text(
+//                                text = uiState.reason,
+//                                style = MaterialTheme.typography.titleMedium,
+//                                color = MaterialTheme.colorScheme.onSurface,
+//                                textAlign = TextAlign.Center
+//                            )
+//                        }
                         Button(
                             onClick = { doClose() },
                             shape = RoundedCornerShape(12.dp)

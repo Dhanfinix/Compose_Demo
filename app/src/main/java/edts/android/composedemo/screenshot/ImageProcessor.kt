@@ -22,7 +22,6 @@ import java.nio.channels.FileChannel
 import java.util.Locale
 
 class ImageProcessor(private val context: Context) {
-
     private var lastScreenshotHash: Long = 0L
     private val imageProcessingMutex = Mutex()
     private lateinit var tflite: Interpreter
@@ -31,6 +30,9 @@ class ImageProcessor(private val context: Context) {
     private var lastScreenType: ScreenType? = null
     private var isOverlayRunning = false
     private val currencyExtractor = CurrencyExtractor()
+    private var lastSentNominal: String? = null // Track last sent nominal to prevent duplicates
+    private var lastCurrencyExtractionTime = 0L
+    private val currencyExtractionInterval = 0L // 500ms between currency extractions
 
     init {
         loadModel()
@@ -46,36 +48,72 @@ class ImageProcessor(private val context: Context) {
                         calculateHashDifference(lastScreenshotHash, currentHash)
                     } else 1.0f
 
-                    println("Change percentage = $changePercentage [Threshold = $CHANGE_THRESHOLD]")
                     if (changePercentage > CHANGE_THRESHOLD) {
                         lastScreenshotHash = currentHash
                         val isPayment = isPaymentScreen(bitmap)
 
                         if (isPayment) {
-                            val safeBitmap = bitmap.copy(bitmap.config ?: Bitmap.Config.ARGB_8888, false)
-                            CoroutineScope(Dispatchers.Main).launch {
-                                currencyExtractor.extractFromBitmap(
-                                    bitmap = safeBitmap,
-                                    onSuccess = { nominal ->
-                                        sendToOverlay(nominal)
-                                    },
-                                    onFailure = { error ->
-                                        stopOverlay()
-                                        Log.e(TAG, error)
-                                    },
-                                    onRejected = { value, reason->
-                                        //stopOverlay()
-                                        sendToOverlay(value, reason)
+                            val currentTime = System.currentTimeMillis()
+                            val timeSinceLast = currentTime - lastCurrencyExtractionTime
+
+                            // Only process currency if enough time has passed or it's the first payment screen
+                            if (lastScreenType != ScreenType.PAYMENT || timeSinceLast >= currencyExtractionInterval) {
+                                lastScreenType = ScreenType.PAYMENT
+                                // Only process if not already processing to prevent overlapping requests
+                                if (!currencyExtractor.isCurrentlyProcessing()) {
+                                    lastCurrencyExtractionTime = currentTime
+
+                                    // Create a safe copy before processing (don't recycle original bitmap yet)
+                                    val safeBitmap = bitmap.copy(bitmap.config ?: Bitmap.Config.ARGB_8888, false)
+                                    if (safeBitmap != null) {
+                                        CoroutineScope(Dispatchers.Main).launch {
+                                            currencyExtractor.extractFromBitmap(
+                                                bitmap = safeBitmap,
+                                                onSuccess = { nominal ->
+                                                    // Only send if it's different from the last sent nominal
+                                                    if (lastSentNominal != nominal) {
+                                                        lastSentNominal = nominal
+                                                        sendToOverlay(nominal)
+                                                    } else {
+                                                        Log.d(TAG, "Same nominal as before, not updating overlay: $nominal")
+                                                    }
+                                                },
+                                                onFailure = { error ->
+                                                    Log.e(TAG, "Currency extraction failed: $error")
+                                                    // Only stop overlay if we haven't sent a nominal before
+                                                    if (lastSentNominal == null) {
+                                                        stopOverlay()
+                                                    }
+                                                },
+                                                onRejected = { value, reason ->
+                                                    Log.d(TAG, "Currency rejected: $value - $reason")
+                                                    // Send rejected value for debugging but don't stop overlay
+                                                    sendToOverlay(value, reason)
+                                                }
+                                            )
+                                        }
+                                    } else {
+                                        Log.e(TAG, "Failed to create safe bitmap copy for currency extraction")
                                     }
-                                )
+                                } else {
+                                    Log.d(TAG, "Currency extractor busy, skipping this frame")
+                                }
+                            } else {
+                                lastScreenType = ScreenType.PAYMENT
+                                Log.d(TAG, "Currency extraction throttled (${timeSinceLast}ms < ${currencyExtractionInterval}ms)")
                             }
-                            lastScreenType = ScreenType.PAYMENT
                         } else {
-                            stopOverlay()
-                            lastScreenType = ScreenType.NOT_PAYMENT
+                            // Screen changed from payment to non-payment
+                            if (lastScreenType == ScreenType.PAYMENT) {
+                                lastScreenType = ScreenType.NOT_PAYMENT
+                                Log.d(TAG, "Screen changed from payment to non-payment, stopping overlay")
+                                currencyExtractor.reset() // Reset extractor state
+                                stopOverlay()
+                                lastSentNominal = null
+                                lastCurrencyExtractionTime = 0L // Reset extraction timing
+                            }
                         }
                     }
-
 
                     bitmap.recycle()
                 } catch (e: Exception) {
@@ -86,13 +124,45 @@ class ImageProcessor(private val context: Context) {
     }
 
     private fun startOverlay() {
-        context.startService(Intent(context, OverlayService::class.java))
-        isOverlayRunning = true
+        if (!isOverlayRunning) {
+            context.startService(Intent(context, OverlayService::class.java))
+            isOverlayRunning = true
+            Log.d(TAG, "Overlay service started")
+        }
     }
 
     private fun stopOverlay() {
-        context.stopService(Intent(context, OverlayService::class.java))
-        isOverlayRunning = false
+        if (isOverlayRunning) {
+            context.stopService(Intent(context, OverlayService::class.java))
+            isOverlayRunning = false
+            lastSentNominal = null // Clear last sent nominal when stopping
+            Log.d(TAG, "Overlay service stopped")
+        }
+    }
+
+    private fun sendToOverlay(nominal: String, reason: String? = null) {
+        if (lastScreenType == ScreenType.PAYMENT){
+            if (!isOverlayRunning) {
+                startOverlay()
+                // Wait a bit for service to initialize before sending update
+                CoroutineScope(Dispatchers.Main).launch {
+                    delay(200) // Slightly longer delay for service initialization
+                    sendUpdateIntent(nominal, reason)
+                }
+            } else {
+                sendUpdateIntent(nominal, reason)
+            }
+        }
+    }
+
+    private fun sendUpdateIntent(nominal: String, reason: String?) {
+        val intent = Intent(context, OverlayService::class.java).apply {
+            action = OverlayService.UPDATE_ACTION
+            putExtra(OverlayService.NOMINAL, nominal)
+            putExtra(OverlayService.REASON, reason)
+        }
+        context.startService(intent)
+        Log.d(TAG, "Update intent sent - Nominal: $nominal, Reason: $reason")
     }
 
     private fun imageToBitmap(image: Image): Bitmap {
@@ -189,31 +259,9 @@ class ImageProcessor(private val context: Context) {
         return Bitmap.createBitmap(bitmap, startX, startY, cropW, cropH)
     }
 
-    private fun sendToOverlay(nominal: String, reason: String? = null) {
-        if (!isOverlayRunning) {
-            startOverlay()
-            // Wait a bit for service to initialize before sending update
-            CoroutineScope(Dispatchers.Main).launch {
-                delay(100) // Small delay
-                sendUpdateIntent(nominal, reason)
-            }
-        } else {
-            sendUpdateIntent(nominal, reason)
-        }
-    }
-
-    private fun sendUpdateIntent(nominal: String, reason: String?) {
-        val intent = Intent(context, OverlayService::class.java).apply {
-            action = OverlayService.UPDATE_ACTION
-            putExtra(OverlayService.NOMINAL, nominal)
-            putExtra(OverlayService.REASON, reason)
-        }
-        context.startService(intent)
-    }
-
     companion object {
         private const val TAG = "ImageProcessor"
-        private const val CHANGE_THRESHOLD = 0.015f //0.05f
+        private const val CHANGE_THRESHOLD = 0.015f
         private const val DHASH_WIDTH = 8
         private const val DHASH_HEIGHT = 8
     }
